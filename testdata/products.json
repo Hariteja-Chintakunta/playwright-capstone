@@ -1,0 +1,13 @@
+{
+  "searchTerms": ["top", "tshirt", "dress", "jeans", "saree"],
+  "expectedProducts": [
+    {
+      "name": "Blue Top",
+      "price": "Rs. 500"
+    },
+    {
+      "name": "Men Tshirt",
+      "price": "Rs. 400"
+    }
+  ]
+}

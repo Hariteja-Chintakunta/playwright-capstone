@@ -1,0 +1,28 @@
+{
+  "validUser": {
+    "name": "TestUser",
+    "email": "testuser_auto@test.com",
+    "password": "Test@12345"
+  },
+  "registrationData": {
+    "title": "Mr",
+    "password": "Test@12345",
+    "day": "15",
+    "month": "6",
+    "year": "1990",
+    "firstName": "Test",
+    "lastName": "User",
+    "company": "Perficient",
+    "address": "123 Test Street",
+    "address2": "Suite 456",
+    "country": "United States",
+    "state": "Missouri",
+    "city": "St Louis",
+    "zipcode": "63141",
+    "mobile": "5551234567"
+  },
+  "invalidUser": {
+    "email": "invalid@nonexistent.com",
+    "password": "wrongpassword"
+  }
+}

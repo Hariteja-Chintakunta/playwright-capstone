@@ -1,0 +1,26 @@
+{
+  "name": "playwright-capstone",
+  "version": "1.0.0",
+  "description": "Enterprise E-Commerce Automation Framework - Perficient Playwright Capstone",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:chromium": "npx playwright test --project=chromium",
+    "test:firefox": "npx playwright test --project=firefox",
+    "test:webkit": "npx playwright test --project=webkit",
+    "test:headed": "npx playwright test --headed",
+    "test:debug": "npx playwright test --debug",
+    "test:ui": "npx playwright test --ui",
+    "test:accessibility": "npx playwright test tests/accessibility.spec.ts",
+    "test:visual": "npx playwright test tests/visual.spec.ts --update-snapshots",
+    "report": "npx playwright show-report reports/html-report",
+    "trace": "npx playwright show-trace"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0"
+  }
+}

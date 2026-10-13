@@ -1,0 +1,2 @@
+This is a test file used for the Contact Us form file upload test.
+It validates that the file upload functionality works correctly.
