@@ -1,0 +1,570 @@
+<title>Framework Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  /* Layout: single-column document, max 820px, generous vertical rhythm */
+  :root {
+    --bg: #fafaf9;
+    --fg: #1c1917;
+    --muted: #57534e;
+    --accent: #9333ea;
+    --accent-soft: #f3e8ff;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --code-bg: #f5f5f4;
+    --step-bg: #faf5ff;
+    --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0a09; --fg: #e7e5e4; --muted: #a8a29e;
+      --accent: #c084fc; --accent-soft: #1e1128;
+      --surface: #1c1917; --border: #292524;
+      --code-bg: #1c1917; --step-bg: #1a1025;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0a09; --fg: #e7e5e4; --muted: #a8a29e;
+    --accent: #c084fc; --accent-soft: #1e1128;
+    --surface: #1c1917; --border: #292524;
+    --code-bg: #1c1917; --step-bg: #1a1025;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-body);
+    max-width: 820px; margin: 0 auto;
+    padding-inline: 24px; padding-block: 32px 64px;
+    line-height: 1.7; font-size: 15px;
+  }
+
+  h1 { font-size: 1.9rem; font-weight: 700; margin: 0 0 8px; line-height: 1.25; text-wrap: balance; }
+  h2 { font-size: 1.35rem; font-weight: 700; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); line-height: 1.3; text-wrap: balance; }
+  h3 { font-size: 1.05rem; font-weight: 600; margin: 32px 0 10px; color: var(--accent); }
+  p { margin: 0 0 14px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; margin: 0 0 32px; }
+
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin: 24px 0 40px; }
+  .toc h3 { margin: 0 0 12px; color: var(--fg); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .toc ol { margin: 0; padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .step-box { background: var(--step-bg); border-left: 3px solid var(--accent); padding: 16px 20px; margin: 16px 0; border-radius: 0 6px 6px 0; }
+  .step-box .label { font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); margin-bottom: 6px; }
+
+  .file-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin: 10px 0; }
+  .file-card .fname { font-family: var(--font-mono); font-weight: 500; font-size: 0.9rem; color: var(--accent); }
+  .file-card .fdesc { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+  code { font-family: var(--font-mono); background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88em; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 12px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.92rem; }
+  th { text-align: left; font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--accent); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  .stat-row { display: flex; flex-wrap: wrap; gap: 14px; margin: 20px 0; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; flex: 1 1 140px; min-width: 0; }
+  .stat .num { font-size: 1.6rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .stat .lbl { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+
+  .why { background: var(--accent-soft); border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 0.93rem; }
+  .why strong { color: var(--accent); }
+
+  .tree { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8; white-space: pre; }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.15rem; }
+    .stat-row { flex-direction: column; }
+  }
+</style>
+
+<h1>Playwright Capstone Framework</h1>
+<p class="subtitle">Complete walkthrough: from PDF upload to production-ready project. Every step, every file, every decision explained.</p>
+
+<div class="stat-row">
+  <div class="stat"><div class="num">34</div><div class="lbl">Files Created</div></div>
+  <div class="stat"><div class="num">2,386</div><div class="lbl">Lines of Code</div></div>
+  <div class="stat"><div class="num">84</div><div class="lbl">Total Tests</div></div>
+  <div class="stat"><div class="num">3</div><div class="lbl">Browsers</div></div>
+</div>
+
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#phase1">Phase 1: PDF Analysis &mdash; What the Document Asked</a></li>
+    <li><a href="#phase2">Phase 2: Behind the Scenes &mdash; Setup Commands Explained</a></li>
+    <li><a href="#phase3">Phase 3: Project Structure &mdash; Every File Explained</a></li>
+    <li><a href="#phase4">Phase 4: Packages Installed &mdash; What and Why</a></li>
+    <li><a href="#phase5">Phase 5: Page Objects &mdash; The Core Architecture</a></li>
+    <li><a href="#phase6">Phase 6: Fixtures &mdash; Dependency Injection</a></li>
+    <li><a href="#phase7">Phase 7: Test Suites &mdash; All 8 Files Explained</a></li>
+    <li><a href="#phase8">Phase 8: Utilities and Test Data</a></li>
+    <li><a href="#phase9">Phase 9: Configuration Files</a></li>
+    <li><a href="#phase10">Phase 10: Documentation Files</a></li>
+    <li><a href="#phase11">Phase 11: Git Setup and Version Control</a></li>
+    <li><a href="#phase12">Phase 12: Architecture Decisions Summary</a></li>
+    <li><a href="#demo">How to Demo This Framework</a></li>
+  </ol>
+</div>
+
+<!-- ============================================ -->
+<h2 id="phase1">Phase 1: PDF Analysis &mdash; What the Document Asked</h2>
+
+<p>The uploaded PDF (<code>PRFT_PW_Capstone.pdf</code>) was a 2-page Perficient capstone project brief. Since Windows didn't have a native PDF text extractor, we installed <strong>PyMuPDF</strong> (a Python library) to read the PDF content programmatically.</p>
+
+<div class="step-box">
+  <div class="label">What happened behind the scenes</div>
+  <p style="margin:0"><code>py -3 -m pip install pymupdf</code> &mdash; Installed PyMuPDF to extract text from PDF files.<br>
+  <code>py -3 -c "import pymupdf; ..."</code> &mdash; Ran a Python script to read every page and print the text.</p>
+</div>
+
+<p>The PDF defined these requirements:</p>
+<table>
+  <tr><th>Category</th><th>Requirements</th></tr>
+  <tr><td>Target App</td><td><code>https://automationexercise.com/</code></td></tr>
+  <tr><td>Language</td><td>Playwright + TypeScript</td></tr>
+  <tr><td>Functional Tests</td><td>Registration, Login/Logout, Product Search, Cart, Checkout, Contact Us</td></tr>
+  <tr><td>Advanced Features</td><td>POM, Custom Fixtures, Data-Driven Testing, Network Mocking, Trace Viewer, Cross-Browser</td></tr>
+  <tr><td>Modern Practices</td><td>Accessibility (axe-core), Visual Regression, AI-Assisted Testing</td></tr>
+  <tr><td>Deliverables</td><td>Source code, 5-8 test cases, README, architecture presentation</td></tr>
+</table>
+
+<!-- ============================================ -->
+<h2 id="phase2">Phase 2: Behind the Scenes &mdash; Setup Commands Explained</h2>
+
+<p>Here is every command that ran, in order, and what it did:</p>
+
+<h3>Step 1: Create the Project Directory</h3>
+<pre>New-Item -ItemType Directory -Force -Path "C:\Users\hariteja.chintakunta\playwright-capstone\config"
+New-Item -ItemType Directory -Force -Path "...\fixtures"
+New-Item -ItemType Directory -Force -Path "...\pages"
+New-Item -ItemType Directory -Force -Path "...\tests"
+New-Item -ItemType Directory -Force -Path "...\testdata"
+New-Item -ItemType Directory -Force -Path "...\utils"
+New-Item -ItemType Directory -Force -Path "...\reports"
+New-Item -ItemType Directory -Force -Path "...\reports\screenshots"</pre>
+<div class="why"><strong>Why:</strong> Playwright needs a structured folder layout. Separating pages, tests, fixtures, and utils keeps the codebase organized so multiple team members can work without merge conflicts.</div>
+
+<h3>Step 2: Write All 34 Source Files</h3>
+<p>Each file was written directly using the Claude Code Write tool. Files were created in dependency order: config files first, then base page object, then other pages, then fixtures (which import pages), then tests (which import fixtures).</p>
+
+<h3>Step 3: Initialize Git</h3>
+<pre>git init</pre>
+<div class="why"><strong>Why:</strong> Version control from the very start. Every professional project needs git to track changes, collaborate, and maintain history.</div>
+
+<h3>Step 4: Install Dependencies</h3>
+<pre>npm install</pre>
+<div class="why"><strong>Why:</strong> Downloads all packages listed in <code>package.json</code> (Playwright, axe-core, dotenv, TypeScript types) into <code>node_modules/</code> and creates <code>package-lock.json</code> for reproducible installs.</div>
+
+<h3>Step 5: Install Playwright Browsers</h3>
+<pre>npx playwright install</pre>
+<div class="why"><strong>Why:</strong> Playwright downloads its own browser binaries (Chromium, Firefox, WebKit) rather than using whatever is installed on the system. This ensures tests run on known browser versions regardless of the machine.</div>
+
+<h3>Step 6: Verify Framework Compiles</h3>
+<pre>npx playwright test --list</pre>
+<div class="why"><strong>Why:</strong> The <code>--list</code> flag parses all test files and prints discovered tests without running them. This confirmed all 84 tests (28 per browser x 3 browsers) compiled correctly with no TypeScript errors.</div>
+
+<h3>Step 7: Initial Git Commit</h3>
+<pre>git add [all 34 files]
+git commit -m "Initial commit: Enterprise E-Commerce Automation Framework"</pre>
+<div class="why"><strong>Why:</strong> Captures the complete framework as a baseline commit. Every future change is tracked against this starting point.</div>
+
+<!-- ============================================ -->
+<h2 id="phase3">Phase 3: Project Structure &mdash; Every File Explained</h2>
+
+<div class="tree">playwright-capstone/
+  .env.example              &larr; Template for environment variables
+  .gitignore                &larr; Tells git what to exclude
+  package.json              &larr; Project metadata + npm scripts
+  package-lock.json         &larr; Exact dependency versions (auto-generated)
+  tsconfig.json             &larr; TypeScript compiler settings
+  playwright.config.ts      &larr; Playwright runner configuration
+  README.md                 &larr; Setup guide + architecture docs
+  FRAMEWORK_DECISIONS.md    &larr; Every design decision explained
+  config/
+    env.config.ts           &larr; Typed environment settings
+  fixtures/
+    test-fixtures.ts        &larr; Custom fixtures + ad blocking
+  pages/
+    base.page.ts            &larr; Shared page methods
+    home.page.ts            &larr; Home page interactions
+    login.page.ts           &larr; Login + signup entry
+    signup.page.ts          &larr; Registration form
+    products.page.ts        &larr; Product listing + search
+    product-detail.page.ts  &larr; Single product page
+    cart.page.ts            &larr; Shopping cart
+    checkout.page.ts        &larr; Checkout + payment
+    contact-us.page.ts      &larr; Contact form
+  tests/
+    auth.spec.ts            &larr; Authentication tests
+    product-search.spec.ts  &larr; Data-driven search tests
+    cart.spec.ts            &larr; Cart operations tests
+    checkout.spec.ts        &larr; End-to-end purchase test
+    contact-us.spec.ts      &larr; Contact form tests
+    accessibility.spec.ts   &larr; axe-core WCAG tests
+    visual.spec.ts          &larr; Screenshot comparison tests
+    network-mock.spec.ts    &larr; Network interception tests
+  testdata/
+    users.json              &larr; User credentials + registration data
+    products.json           &larr; Search terms + product info
+    checkout.json           &larr; Payment details
+    test-upload.txt         &larr; File for upload test
+  utils/
+    data-reader.ts          &larr; Typed JSON data reader
+    screenshot.ts           &larr; Screenshot capture utility
+    logger.ts               &larr; Timestamped logging
+  reports/
+    .gitkeep                &larr; Keeps empty dir in git</div>
+
+<!-- ============================================ -->
+<h2 id="phase4">Phase 4: Packages Installed &mdash; What and Why</h2>
+
+<table>
+  <tr><th>Package</th><th>Type</th><th>What It Does</th><th>Why We Need It</th></tr>
+  <tr>
+    <td><code>@playwright/test</code></td>
+    <td>Dev</td>
+    <td>The Playwright test runner, assertion library, and browser automation engine</td>
+    <td>Core requirement of the capstone. Provides <code>test()</code>, <code>expect()</code>, <code>page</code> objects, and all browser control.</td>
+  </tr>
+  <tr>
+    <td><code>@axe-core/playwright</code></td>
+    <td>Prod</td>
+    <td>Accessibility testing engine that scans pages for WCAG violations</td>
+    <td>PDF requires "Accessibility Testing using axe-core". This runs the axe engine inside Playwright's browser context.</td>
+  </tr>
+  <tr>
+    <td><code>dotenv</code></td>
+    <td>Prod</td>
+    <td>Loads environment variables from a <code>.env</code> file into <code>process.env</code></td>
+    <td>Lets us configure <code>BASE_URL</code> per environment (dev/staging/prod) without changing code. CI systems set env vars natively.</td>
+  </tr>
+  <tr>
+    <td><code>@types/node</code></td>
+    <td>Dev</td>
+    <td>TypeScript type definitions for Node.js built-in modules (<code>fs</code>, <code>path</code>, etc.)</td>
+    <td>Our utilities use <code>fs.readFileSync</code> and <code>path.resolve</code>. Without this, TypeScript can't type-check those calls.</td>
+  </tr>
+</table>
+
+<div class="why"><strong>Why only 4 packages?</strong> Playwright bundles its own test runner, assertion library, reporters, and screenshot comparison. We don't need Mocha, Chai, Jest, Allure, or any other testing library. Fewer dependencies = fewer security vulnerabilities, faster installs, and less maintenance.</div>
+
+<!-- ============================================ -->
+<h2 id="phase5">Phase 5: Page Objects &mdash; The Core Architecture</h2>
+
+<h3>What is the Page Object Model?</h3>
+<p>POM is a design pattern where each page of the web application has a corresponding class in the code. The class contains all the locators (how to find elements) and actions (what you can do on the page). Tests never touch raw locators &mdash; they call page object methods instead.</p>
+
+<h3>base.page.ts &mdash; The Parent Class</h3>
+<div class="file-card">
+  <div class="fname">pages/base.page.ts</div>
+  <div class="fdesc">Defines shared methods that every page needs: <code>navigate()</code>, <code>getTitle()</code>, <code>waitForPageLoad()</code>, <code>takeScreenshot()</code>, <code>getText()</code>. Every other page extends this class.</div>
+</div>
+<div class="why"><strong>Why:</strong> Without a base class, every page object would duplicate these 5 methods. With 8 page objects, that's 40 duplicate methods eliminated.</div>
+
+<h3>All 8 Page Objects</h3>
+<table>
+  <tr><th>File</th><th>URL It Covers</th><th>Key Methods</th></tr>
+  <tr><td><code>home.page.ts</code></td><td><code>/</code></td><td><code>open()</code>, <code>verifyLoggedIn()</code>, <code>logout()</code>, <code>goToLogin()</code>, <code>deleteAccount()</code></td></tr>
+  <tr><td><code>login.page.ts</code></td><td><code>/login</code></td><td><code>login()</code>, <code>startSignup()</code>, <code>verifyLoginError()</code></td></tr>
+  <tr><td><code>signup.page.ts</code></td><td><code>/signup</code></td><td><code>fillRegistrationForm()</code>, <code>submitRegistration()</code>, <code>verifyAccountCreated()</code></td></tr>
+  <tr><td><code>products.page.ts</code></td><td><code>/products</code></td><td><code>searchProduct()</code>, <code>addProductToCart()</code>, <code>getProductNames()</code></td></tr>
+  <tr><td><code>product-detail.page.ts</code></td><td><code>/product_details/{id}</code></td><td><code>getProductInfo()</code>, <code>setQuantity()</code>, <code>addToCart()</code></td></tr>
+  <tr><td><code>cart.page.ts</code></td><td><code>/view_cart</code></td><td><code>getCartItems()</code>, <code>removeItem()</code>, <code>proceedToCheckout()</code></td></tr>
+  <tr><td><code>checkout.page.ts</code></td><td><code>/checkout</code> + <code>/payment</code></td><td><code>verifyDeliveryAddress()</code>, <code>placeOrder()</code>, <code>fillPaymentDetails()</code>, <code>confirmPayment()</code></td></tr>
+  <tr><td><code>contact-us.page.ts</code></td><td><code>/contact_us</code></td><td><code>fillContactForm()</code>, <code>uploadFile()</code>, <code>submit()</code></td></tr>
+</table>
+
+<h3>Locator Strategy</h3>
+<p>Every locator was chosen in this priority order:</p>
+<table>
+  <tr><th>Priority</th><th>Strategy</th><th>Example</th><th>Why</th></tr>
+  <tr><td>1st</td><td><code>data-qa</code> attributes</td><td><code>[data-qa="login-email"]</code></td><td>Most stable. Explicitly placed for testing. Won't change with UI redesigns.</td></tr>
+  <tr><td>2nd</td><td>Semantic HTML attributes</td><td><code>a[href="/login"]</code></td><td>Tied to functionality, not appearance. Rarely changes.</td></tr>
+  <tr><td>3rd</td><td>ID selectors</td><td><code>#search_product</code></td><td>Unique per page. Stable but less common than data-qa.</td></tr>
+  <tr><td>4th</td><td>Text-based selectors</td><td><code>h2:has-text("Login")</code></td><td>Last resort. Readable but breaks if text changes.</td></tr>
+</table>
+
+<!-- ============================================ -->
+<h2 id="phase6">Phase 6: Fixtures &mdash; Dependency Injection</h2>
+
+<div class="file-card">
+  <div class="fname">fixtures/test-fixtures.ts</div>
+  <div class="fdesc">Extends Playwright's built-in <code>test</code> object with custom fixtures that automatically construct and inject page objects into every test.</div>
+</div>
+
+<h3>What This File Does</h3>
+<p>Instead of tests creating page objects manually:</p>
+<pre>// WITHOUT fixtures (bad - repetitive)
+test('login', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  const homePage = new HomePage(page);
+  // ... use them
+});</pre>
+<p>Tests declare what they need and the fixture provides it:</p>
+<pre>// WITH fixtures (good - clean)
+test('login', async ({ loginPage, homePage }) => {
+  // loginPage and homePage are ready to use
+});</pre>
+
+<h3>Ad Blocking</h3>
+<p>The fixture overrides Playwright's default <code>page</code> fixture to intercept and abort ad network requests:</p>
+<pre>page: async ({ page }, use) => {
+  await page.route(
+    /google|facebook|doubleclick|googlesyndication|adservice/,
+    route => route.abort()
+  );
+  await use(page);
+},</pre>
+<div class="why"><strong>Why:</strong> automationexercise.com loads Google Ads that overlay clickable elements and cause random test failures. Blocking at the network level is 100% reliable, unlike trying to close popup ads (which appear inconsistently).</div>
+
+<!-- ============================================ -->
+<h2 id="phase7">Phase 7: Test Suites &mdash; All 8 Files Explained</h2>
+
+<h3>1. auth.spec.ts &mdash; User Authentication (3 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/auth.spec.ts</div>
+  <div class="fdesc">Tests registration, login/logout, and invalid login error handling.</div>
+</div>
+<table>
+  <tr><th>Test</th><th>What It Verifies</th></tr>
+  <tr><td>Register new user, verify, delete</td><td>Full registration flow: enter name/email, fill form, submit, verify "Account Created" message, delete account for cleanup</td></tr>
+  <tr><td>Login with valid credentials and logout</td><td>Registers first (so credentials exist), logs out, logs back in with those credentials, verifies "Logged in as" text, logs out again</td></tr>
+  <tr><td>Invalid credentials shows error</td><td>Attempts login with wrong email/password, verifies error message appears</td></tr>
+</table>
+<div class="why"><strong>Why unique emails per test?</strong> Each test generates <code>register_1697234567890@test.com</code> using <code>Date.now()</code>. This prevents "Email already exists" errors and lets tests run in parallel without conflicts.</div>
+
+<h3>2. product-search.spec.ts &mdash; Data-Driven Search (7 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/product-search.spec.ts</div>
+  <div class="fdesc">Runs the same search test for 5 different terms from <code>testdata/products.json</code>, plus product detail and listing tests.</div>
+</div>
+<pre>// This loop generates 5 separate tests from one block of code
+for (const searchTerm of productData.searchTerms) {
+  test(`Search for "${searchTerm}"`, async ({ productsPage }) => {
+    // Same logic, different data each time
+  });
+}</pre>
+<div class="why"><strong>Why data-driven?</strong> Adding a new search term means editing <code>products.json</code>, not writing new TypeScript. Separates test logic from test data.</div>
+
+<h3>3. cart.spec.ts &mdash; Shopping Cart (4 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/cart.spec.ts</div>
+  <div class="fdesc">Add multiple products, remove items, verify quantities and details, test quantity from product detail page.</div>
+</div>
+
+<h3>4. checkout.spec.ts &mdash; End-to-End Purchase (1 long test)</h3>
+<div class="file-card">
+  <div class="fname">tests/checkout.spec.ts</div>
+  <div class="fdesc">The most comprehensive test: register &rarr; add products &rarr; checkout &rarr; verify address &rarr; place order &rarr; fill payment &rarr; confirm &rarr; cleanup.</div>
+</div>
+<div class="why"><strong>Why one long test instead of many small ones?</strong> Checkout is a single user journey. Breaking it into separate tests would require sharing state between them (logged-in session, cart contents), which violates test isolation. One test = one complete business flow.</div>
+
+<h3>5. contact-us.spec.ts &mdash; Contact Form (2 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/contact-us.spec.ts</div>
+  <div class="fdesc">Fill all form fields, upload a file, handle the browser confirm dialog, verify success message.</div>
+</div>
+<div class="why"><strong>Interesting detail:</strong> The site shows a browser <code>confirm()</code> dialog on form submit. The test handles it with <code>page.once('dialog', dialog => dialog.accept())</code> &mdash; registering a one-time listener before clicking submit.</div>
+
+<h3>6. accessibility.spec.ts &mdash; axe-core WCAG (3 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/accessibility.spec.ts</div>
+  <div class="fdesc">Scans Home, Login, and Products pages for WCAG 2.0 Level A/AA violations using axe-core.</div>
+</div>
+<pre>const results = await new AxeBuilder({ page })
+  .withTags(['wcag2a', 'wcag2aa'])
+  .analyze();</pre>
+<div class="why"><strong>Why filter for critical/serious only?</strong> axe-core reports 4 severity levels (minor, moderate, serious, critical). Failing on every minor issue would make tests too noisy. Critical and serious violations are the ones that prevent users with disabilities from using the site.</div>
+
+<h3>7. visual.spec.ts &mdash; Visual Regression (3 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/visual.spec.ts</div>
+  <div class="fdesc">Takes full-page screenshots and compares against stored baselines. Fails if pixels differ by more than 5%.</div>
+</div>
+<pre>await expect(page).toHaveScreenshot('home-page.png', {
+  maxDiffPixelRatio: 0.05,
+  fullPage: true,
+});</pre>
+<div class="why"><strong>Why Chromium only?</strong> Different browsers render fonts and layouts differently. Maintaining separate baselines per browser triples maintenance without proportional value. Functional cross-browser coverage comes from the other test files.</div>
+
+<h3>8. network-mock.spec.ts &mdash; Network Interception (5 tests)</h3>
+<div class="file-card">
+  <div class="fname">tests/network-mock.spec.ts</div>
+  <div class="fdesc">Demonstrates intercepting requests, mocking, blocking images, simulating slow networks, and capturing response status codes.</div>
+</div>
+<table>
+  <tr><th>Test</th><th>Technique Demonstrated</th></tr>
+  <tr><td>Intercept and log requests</td><td><code>page.on('request', ...)</code> &mdash; Listen to outgoing requests</td></tr>
+  <tr><td>Mock search API</td><td><code>page.route('**/product*', ...)</code> &mdash; Intercept and modify</td></tr>
+  <tr><td>Block images</td><td><code>route.abort()</code> &mdash; Prevent specific resources from loading</td></tr>
+  <tr><td>Simulate slow network</td><td><code>setTimeout</code> inside route handler &mdash; Add artificial delay</td></tr>
+  <tr><td>Validate status codes</td><td><code>page.on('response', ...)</code> &mdash; Capture and assert on responses</td></tr>
+</table>
+
+<!-- ============================================ -->
+<h2 id="phase8">Phase 8: Utilities and Test Data</h2>
+
+<h3>Utilities</h3>
+<table>
+  <tr><th>File</th><th>What It Does</th><th>Why</th></tr>
+  <tr>
+    <td><code>data-reader.ts</code></td>
+    <td>Reads JSON files from <code>testdata/</code> and returns typed TypeScript objects</td>
+    <td>Centralizes data loading. Type safety catches JSON structure mismatches at compile time, not test runtime.</td>
+  </tr>
+  <tr>
+    <td><code>screenshot.ts</code></td>
+    <td>Captures timestamped screenshots to <code>reports/screenshots/</code></td>
+    <td>For manual debugging. Playwright's built-in screenshot-on-failure covers most needs, but this utility enables on-demand captures during test development.</td>
+  </tr>
+  <tr>
+    <td><code>logger.ts</code></td>
+    <td>Writes timestamped log entries to console and <code>reports/test-execution.log</code></td>
+    <td>Provides structured logging with severity levels (INFO/WARN/ERROR/DEBUG). Debug logs only appear when <code>DEBUG</code> env var is set.</td>
+  </tr>
+</table>
+
+<h3>Test Data Files</h3>
+<table>
+  <tr><th>File</th><th>Contents</th><th>Used By</th></tr>
+  <tr><td><code>users.json</code></td><td>Valid user credentials, full registration form data, invalid credentials</td><td>auth.spec.ts, checkout.spec.ts</td></tr>
+  <tr><td><code>products.json</code></td><td>5 search terms, expected product names and prices</td><td>product-search.spec.ts</td></tr>
+  <tr><td><code>checkout.json</code></td><td>Payment card details, order comment</td><td>checkout.spec.ts</td></tr>
+  <tr><td><code>test-upload.txt</code></td><td>A plain text file (2 lines)</td><td>contact-us.spec.ts (file upload test)</td></tr>
+</table>
+
+<!-- ============================================ -->
+<h2 id="phase9">Phase 9: Configuration Files</h2>
+
+<h3>playwright.config.ts</h3>
+<table>
+  <tr><th>Setting</th><th>Value</th><th>Why</th></tr>
+  <tr><td><code>fullyParallel</code></td><td><code>true</code></td><td>Tests run concurrently for faster execution. Each test gets its own browser context, so there's no shared state.</td></tr>
+  <tr><td><code>retries</code></td><td>1 local, 2 in CI</td><td>Web tests can be flaky due to network timing. Retries catch transient failures without masking real bugs.</td></tr>
+  <tr><td><code>workers</code></td><td>auto local, 1 in CI</td><td>Local: use all CPU cores. CI: single worker avoids resource contention on shared runners.</td></tr>
+  <tr><td><code>trace</code></td><td><code>on-first-retry</code></td><td>Captures full diagnostic traces only when a test fails and retries. Avoids wasting disk space on passing tests.</td></tr>
+  <tr><td><code>screenshot</code></td><td><code>only-on-failure</code></td><td>Automatic screenshot when a test fails. Immediate visual evidence of what went wrong.</td></tr>
+  <tr><td><code>video</code></td><td><code>retain-on-failure</code></td><td>Records video of every test but only saves the file if the test fails.</td></tr>
+  <tr><td><code>reporters</code></td><td>list + html + json</td><td>Console output for local dev, interactive HTML for presentations, machine-readable JSON for CI pipelines.</td></tr>
+</table>
+
+<h3>tsconfig.json</h3>
+<table>
+  <tr><th>Setting</th><th>Why</th></tr>
+  <tr><td><code>strict: true</code></td><td>Enables all strict type checks. Catches null reference errors, missing return types, and type mismatches at compile time.</td></tr>
+  <tr><td><code>resolveJsonModule</code></td><td>Allows importing <code>.json</code> files directly in TypeScript with type checking.</td></tr>
+  <tr><td><code>paths</code> aliases</td><td>Lets you write <code>@pages/home.page</code> instead of <code>../../pages/home.page</code>. Cleaner imports.</td></tr>
+</table>
+
+<h3>.gitignore</h3>
+<p>Excludes: <code>node_modules/</code> (3,000+ files, regenerated by <code>npm install</code>), <code>test-results/</code> (generated per run), <code>reports/</code> output, <code>.env</code> (may contain secrets), and screenshot PNGs.</p>
+
+<h3>.env.example</h3>
+<p>Template showing available environment variables. Committed to git so new team members know what to configure. The actual <code>.env</code> file is gitignored.</p>
+
+<!-- ============================================ -->
+<h2 id="phase10">Phase 10: Documentation Files</h2>
+
+<h3>README.md</h3>
+<p>The primary documentation file. Contains:</p>
+<ul>
+  <li>Architecture overview with full directory tree</li>
+  <li>Setup instructions (prerequisites, installation, environment config)</li>
+  <li>All <code>npm run</code> commands with explanations</li>
+  <li>Test coverage table mapping files to PDF requirements</li>
+  <li>Explanation of every framework component</li>
+  <li>Debugging guide (HTML report, Trace Viewer, debug mode, UI mode)</li>
+  <li>How to add new tests (step-by-step)</li>
+</ul>
+
+<h3>FRAMEWORK_DECISIONS.md</h3>
+<p>14 architectural decisions, each with:</p>
+<ul>
+  <li>The decision made</li>
+  <li>Detailed reasoning (multiple bullet points)</li>
+  <li>When the alternative would be the right choice</li>
+</ul>
+<p>Covers: Playwright vs Selenium, TypeScript, POM, Fixtures, JSON test data, axe-core, visual regression, network interception, folder structure, dotenv, multiple reporters, trace strategy, unique emails, BasePage inheritance.</p>
+
+<!-- ============================================ -->
+<h2 id="phase11">Phase 11: Git Setup and Version Control</h2>
+
+<div class="step-box">
+  <div class="label">Commands executed</div>
+  <p style="margin:0"><code>git init</code> &mdash; Created a new git repository<br>
+  <code>git add [34 specific files]</code> &mdash; Staged all source files (NOT <code>git add -A</code>, to avoid accidentally adding node_modules or temp files)<br>
+  <code>git commit</code> &mdash; Created initial commit with descriptive message</p>
+</div>
+
+<p>The commit message lists every major component: page objects, test suites, fixtures, utilities, configuration, and documentation.</p>
+
+<!-- ============================================ -->
+<h2 id="phase12">Phase 12: Architecture Decisions Summary</h2>
+
+<table>
+  <tr><th>#</th><th>Decision</th><th>Core Reason</th></tr>
+  <tr><td>1</td><td>Playwright over Selenium</td><td>Auto-wait, built-in assertions, trace viewer, network interception, multi-browser</td></tr>
+  <tr><td>2</td><td>TypeScript over JavaScript</td><td>Compile-time error detection, IDE autocomplete, self-documenting interfaces</td></tr>
+  <tr><td>3</td><td>Page Object Model</td><td>Single source of truth for locators, readable tests, encapsulation</td></tr>
+  <tr><td>4</td><td>Custom Fixtures</td><td>Dependency injection, centralized ad blocking, lazy instantiation</td></tr>
+  <tr><td>5</td><td>JSON test data</td><td>Separation of concerns, data-driven iteration, type safety, git-diffable</td></tr>
+  <tr><td>6</td><td>axe-core for accessibility</td><td>Industry standard, WCAG compliance, actionable violation reports</td></tr>
+  <tr><td>7</td><td>Built-in visual regression</td><td>Zero external dependencies, tight Playwright integration, local baselines</td></tr>
+  <tr><td>8</td><td>Network interception for ads</td><td>Deterministic test behavior, faster tests, no DOM dependency</td></tr>
+  <tr><td>9</td><td>Specific folder structure</td><td>Matches PDF requirement, scales with team size, convention-based</td></tr>
+  <tr><td>10</td><td>dotenv for config</td><td>Environment portability, CI compatibility, security</td></tr>
+  <tr><td>11</td><td>Three reporters</td><td>Console for dev, HTML for presentations, JSON for CI</td></tr>
+  <tr><td>12</td><td>Trace on first retry</td><td>Efficient disk usage, full diagnostic data when needed</td></tr>
+  <tr><td>13</td><td>Unique emails per run</td><td>Test isolation, parallel safety, no shared state</td></tr>
+  <tr><td>14</td><td>BasePage inheritance</td><td>DRY principle, consistent interface, protected page access</td></tr>
+</table>
+
+<!-- ============================================ -->
+<h2 id="demo">How to Demo This Framework</h2>
+
+<h3>Quick Commands</h3>
+<pre># Open project in VS Code
+code C:\Users\hariteja.chintakunta\playwright-capstone
+
+# Run all tests (headless, all browsers)
+npm test
+
+# Run with visible browser (best for demos)
+npx playwright test --project=chromium --headed
+
+# Run one specific test file
+npx playwright test tests/checkout.spec.ts --project=chromium --headed
+
+# Open interactive HTML report
+npm run report
+
+# Step-through debug mode
+npm run test:debug
+
+# Interactive UI mode with time-travel
+npm run test:ui</pre>
+
+<h3>Recommended Demo Flow (15 minutes)</h3>
+<table>
+  <tr><th>Time</th><th>What to Show</th><th>What to Say</th></tr>
+  <tr><td>0-2 min</td><td>VS Code file explorer + README</td><td>Walk through the folder structure and explain the architecture</td></tr>
+  <tr><td>2-5 min</td><td>Run checkout test headed</td><td>Show the browser automating a complete purchase flow</td></tr>
+  <tr><td>5-8 min</td><td>Open <code>login.page.ts</code> + <code>auth.spec.ts</code></td><td>Explain POM: locators in page object, business actions in test</td></tr>
+  <tr><td>8-10 min</td><td>Open HTML report</td><td>Show test results, screenshots, trace viewer link</td></tr>
+  <tr><td>10-12 min</td><td>Show <code>product-search.spec.ts</code> + <code>products.json</code></td><td>Explain data-driven testing: one code block, 5 tests from JSON</td></tr>
+  <tr><td>12-15 min</td><td>Open FRAMEWORK_DECISIONS.md</td><td>Answer "why" questions with prepared reasoning</td></tr>
+</table>
+
+<p style="margin-top:40px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:0.85rem;">
+  Perficient Playwright Capstone &mdash; Enterprise E-Commerce Automation Framework<br>
+  Project location: <code>C:\Users\hariteja.chintakunta\playwright-capstone\</code>
+</p>
