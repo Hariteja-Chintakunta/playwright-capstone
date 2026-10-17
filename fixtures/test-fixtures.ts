@@ -29,7 +29,7 @@ export const test = base.extend<TestFixtures>({
   // is more reliable than trying to dismiss popups.
   page: async ({ page }, use) => {
     await page.route(
-      /google|facebook|doubleclick|googlesyndication|adservice/,
+      /googlesyndication|doubleclick|adservice|googleadservices|connect\.facebook|facebook\.com\/(tr|plugins)/,
       (route) => route.abort()
     );
     await use(page);

@@ -8,10 +8,11 @@ dotenv.config();
 
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  // Tests share accounts and server-side carts on the live demo site.
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
 
   reporter: [
     ['list'],

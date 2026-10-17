@@ -59,6 +59,18 @@ export class CartPage extends BasePage {
       .click();
   }
 
+  async clearAllItems(): Promise<void> {
+    const deleteButtons = this.page.locator('td.cart_delete a');
+    let remaining = await deleteButtons.count();
+    while (remaining > 0) {
+      await deleteButtons.first().click();
+      remaining--;
+      if (remaining > 0) {
+        await expect(deleteButtons).toHaveCount(remaining);
+      }
+    }
+  }
+
   async proceedToCheckout(): Promise<void> {
     await this.proceedToCheckoutButton.click();
   }

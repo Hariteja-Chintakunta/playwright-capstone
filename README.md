@@ -1,375 +1,382 @@
-# Playwright Capstone - Enterprise E-Commerce Automation Framework
+# Playwright E-Commerce Test Automation Framework
 
-An enterprise-grade test automation framework built with **Playwright** and **TypeScript** for
-validating critical business workflows on [automationexercise.com](https://automationexercise.com/).
+> **Presentation overview**
+> A TypeScript and Playwright framework that automates important user journeys on
+> [Automation Exercise](https://automationexercise.com). It demonstrates reusable page
+> objects, custom fixtures, cross-browser testing, accessibility checks, visual
+> regression, network controls, and actionable test reporting.
 
-Built as a Perficient capstone project demonstrating production-ready automation practices:
-Page Object Model, custom fixtures, data-driven testing, network interception, accessibility
-validation, visual regression, and cross-browser execution.
+## Project at a glance
 
----
+| Item | Details |
+|---|---|
+| Application under test | Automation Exercise e-commerce demo |
+| Language | TypeScript |
+| Automation framework | Playwright Test |
+| Design pattern | Page Object Model (POM) |
+| Browsers | Chromium, Firefox, and WebKit |
+| Additional checks | axe-core accessibility, screenshot comparison, network interception |
+| Configuration | `playwright.config.ts`, `.env` |
 
-## Architecture Overview
+## Contents
 
+1. [Purpose and scope](#purpose-and-scope)
+2. [How the project works](#how-the-project-works)
+3. [Project structure](#project-structure)
+4. [Automated coverage](#automated-coverage)
+5. [Setup](#setup)
+6. [Run tests](#run-tests)
+7. [Reports and debugging](#reports-and-debugging)
+8. [Latest execution results](#latest-execution-results)
+9. [Implementation and verification walkthrough](#implementation-and-verification-walkthrough)
+10. [Known limits and next steps](#known-limits-and-next-steps)
+11. [Presentation outline](#presentation-outline)
+12. [Related documentation](#related-documentation)
+
+## Purpose and scope
+
+Manual regression testing of an online shop requires repeating the same flows after
+changes: registering and logging in, finding products, updating a cart, placing an
+order, and checking user-facing pages. This project automates those checks so they
+can be repeated consistently in multiple browsers.
+
+The framework covers:
+
+- Account registration, login, and logout.
+- Product search, browsing, and adding products to the cart.
+- Removing cart items and checking cart contents.
+- Checkout, payment, and invoice download.
+- Contact form submission with a file attachment.
+- Accessibility analysis of key pages.
+- Visual comparison of key pages against saved screenshots.
+- Request observation, routing, resource blocking, response checks, and simulated
+  network delay.
+
+The target is a public demo site. The test suite depends on that site being reachable
+and its content and behavior remaining stable. A failure can therefore be caused by
+the site, network, browser differences, test data, or the test itself.
+
+## How the project works
+
+The test flow follows a simple layered design:
+
+```text
+Playwright test
+      |
+      v
+Custom fixture provides page objects and shared browser setup
+      |
+      v
+Page object performs page actions and exposes reusable checks
+      |
+      v
+Playwright browser visits Automation Exercise
+      |
+      v
+Assertions, screenshots, traces, and reports capture the result
 ```
+
+### Page Object Model
+
+Each page class owns the locators and interactions for one area of the site. For
+example, `CartPage` provides cart actions while `CheckoutPage` provides checkout and
+payment actions. Shared behavior such as navigation and reading text is in
+`BasePage`. Tests can describe user behavior without repeating locator details.
+
+### Custom fixtures
+
+`fixtures/test-fixtures.ts` extends Playwright's test fixture with page objects for
+the home, login, signup, products, product detail, cart, checkout, and contact pages.
+It also blocks selected advertising and tracking requests to reduce overlays and
+improve test stability.
+
+### Configuration and data
+
+`playwright.config.ts` sets the test directory, browser projects, retry behavior,
+timeouts, trace and screenshot policies, and list/HTML/JSON reporters. Tests run in a
+single worker because the public demo stores carts on shared user accounts; parallel
+tests that log into the same account can otherwise clear or modify each other's carts.
+This improves determinism at the cost of longer suite execution time. The base URL
+defaults to `https://automationexercise.com` and can be changed with `BASE_URL`.
+Reusable sample inputs are kept in `testdata/`; account registration tests can save
+generated accounts under `reports/` for other scenarios.
+
+### Quality checks
+
+- **Accessibility:** `@axe-core/playwright` scans key pages for WCAG-related issues.
+- **Visual regression:** `toHaveScreenshot()` compares Chromium screenshots with
+  versioned baselines.
+- **Network behavior:** tests observe requests and responses, block images, and add
+  artificial delay. The search-routing test exercises a route handler while checking
+  the site's form-based search behavior.
+- **Cross-browser:** the same functional scenarios run in Chromium, Firefox, and
+  WebKit; visual baselines are intentionally Chromium-only.
+
+## Project structure
+
+```text
 playwright-capstone/
-  config/
-    env.config.ts          # Typed environment settings (URLs, timeouts)
-  fixtures/
-    test-fixtures.ts       # Custom fixtures: page object injection + ad blocking
-  pages/
-    base.page.ts           # Shared methods (navigate, screenshot, getText)
-    home.page.ts           # Home page: nav links, login state verification
-    login.page.ts          # Login/signup entry: both forms on /login
-    signup.page.ts         # Registration form: full account creation at /signup
-    products.page.ts       # Product listing: search, browse, add to cart
-    product-detail.page.ts # Single product: info display, quantity, add to cart
-    cart.page.ts           # Shopping cart: items, removal, proceed to checkout
-    checkout.page.ts       # Checkout + payment: address, order, payment, confirmation
-    contact-us.page.ts     # Contact form: fill, upload, submit
-  tests/
-    auth.spec.ts           # Registration, login/logout, invalid credentials
-    product-search.spec.ts # Data-driven search across multiple terms
-    cart.spec.ts           # Add, remove, verify cart items and quantities
-    checkout.spec.ts       # End-to-end purchase flow
-    contact-us.spec.ts     # Contact form submission with file upload
-    accessibility.spec.ts  # axe-core WCAG 2.0 A/AA scanning
-    visual.spec.ts         # Screenshot baseline comparison
-    network-mock.spec.ts   # Request interception, mocking, blocking
-  testdata/
-    users.json             # Registration and login credentials
-    products.json          # Search terms and expected product data
-    checkout.json          # Payment details and order comments
-    test-upload.txt        # File for contact form upload test
-  utils/
-    data-reader.ts         # Typed JSON reader for test data files
-    screenshot.ts          # Manual screenshot capture utility
-    logger.ts              # Timestamped logging to console and file
-  reports/                 # Generated reports and screenshots (gitignored)
-  playwright.config.ts     # Playwright: browsers, reporters, traces, timeouts
-  package.json             # Dependencies and npm scripts
-  tsconfig.json            # TypeScript compiler configuration
-  .env.example             # Environment variable template
-  FRAMEWORK_DECISIONS.md   # Detailed reasoning for every architecture decision
+|-- config/
+|   `-- env.config.ts                  # Typed environment defaults
+|-- docs/
+|   |-- manual-test-cases.html         # Manual scenario reference
+|   |-- presentation-guide.html        # Speaking notes and Q&A
+|   |-- presentation.html              # Presentation material
+|   `-- project-walkthrough.html       # Framework walkthrough
+|-- fixtures/
+|   `-- test-fixtures.ts               # Shared page objects and ad blocking
+|-- pages/
+|   |-- base.page.ts                   # Shared page methods
+|   |-- cart.page.ts                   # Cart interactions and assertions
+|   |-- checkout.page.ts               # Checkout and payment
+|   |-- contact-us.page.ts             # Contact form and upload
+|   |-- home.page.ts                   # Home page and navigation
+|   |-- login.page.ts                  # Login and signup entry
+|   |-- product-detail.page.ts         # Product detail and quantity
+|   |-- products.page.ts               # Product search and browsing
+|   `-- signup.page.ts                 # Account registration
+|-- reports/                           # Generated reports and run artifacts
+|-- testdata/
+|   |-- checkout.json                  # Checkout sample data
+|   |-- products.json                  # Product/search sample data
+|   |-- test-upload.txt                # Contact form upload fixture
+|   `-- users.json                     # User sample data
+|-- tests/
+|   |-- accessibility.spec.ts          # Accessibility scans
+|   |-- contact-us-form-validation.spec.ts
+|   |-- network-mock.spec.ts           # Network routing and response checks
+|   |-- place-order.spec.ts            # Checkout through invoice download
+|   |-- remove-product.spec.ts          # Cart removal flow
+|   |-- search-add-to-cart.spec.ts      # Browse and add products
+|   |-- user-login.spec.ts             # Login using a saved test account
+|   |-- user-logout.spec.ts             # Logout flow
+|   |-- user-registration.spec.ts       # Registration and account saving
+|   |-- visual.spec.ts                 # Screenshot comparisons
+|   `-- visual.spec.ts-snapshots/      # Chromium visual baselines
+|-- utils/
+|   |-- account-store.ts               # Generated account persistence
+|   |-- data-reader.ts                 # Typed test data readers
+|   |-- logger.ts                      # Shared logging utility
+|   `-- screenshot.ts                  # Screenshot helper
+|-- .env.example                       # Environment variable template
+|-- FRAMEWORK_DECISIONS.md             # Architecture rationale
+|-- package.json                       # Dependencies and commands
+|-- playwright.config.ts               # Playwright runner configuration
+`-- tsconfig.json                      # TypeScript compiler configuration
 ```
 
----
+## Automated coverage
 
-## Setup Instructions
+| Spec | Main scenario |
+|---|---|
+| `user-registration.spec.ts` | Register a user with unique details and persist the account |
+| `user-login.spec.ts` | Log in using the latest saved test account |
+| `user-logout.spec.ts` | Log out and confirm the signed-out state |
+| `search-add-to-cart.spec.ts` | Browse men's T-shirts, filter to Polo, add products, verify cart |
+| `remove-product.spec.ts` | Add products, remove one, and verify remaining cart contents |
+| `place-order.spec.ts` | Sign in, add products, checkout, pay, download and check invoice |
+| `contact-us-form-validation.spec.ts` | Submit contact form with an uploaded file and verify success |
+| `accessibility.spec.ts` | Scan the home, login, and products pages using axe-core |
+| `visual.spec.ts` | Compare home, login, and products screenshots with Chromium baselines |
+| `network-mock.spec.ts` | Observe requests, route form search, block images, simulate delay, inspect statuses |
+
+## Setup
 
 ### Prerequisites
-- Node.js 18 or later
-- npm 9 or later
 
-### Installation
+- Node.js 18 or later.
+- npm 9 or later.
+- Network access to the application under test.
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd playwright-capstone
+### Install dependencies and browsers
 
-# Install dependencies
+From the project root:
+
+```powershell
 npm install
-
-# Install Playwright browsers (Chromium, Firefox, WebKit)
-npx playwright install
+npx playwright install chromium firefox webkit
 ```
 
-### Environment Configuration
+### Configure the target URL
 
-```bash
-# Copy the example env file
-cp .env.example .env
+Copy `.env.example` to `.env` and set `BASE_URL` if you want to target a different
+environment. The default is `https://automationexercise.com`.
 
-# Edit if you need to point to a different environment
-# Default: https://automationexercise.com
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
----
+Command Prompt:
 
-## Running Tests
+```bat
+copy .env.example .env
+```
 
-### All tests across all browsers
+Do not put real credentials or secrets in source control. Generated test account data
+and reports should be treated as local run artifacts.
+
+## Run tests
+
+Run the full suite in all configured browsers:
+
 ```bash
 npm test
 ```
 
-### Single browser
+Run the TypeScript compiler without emitting build files:
+
+```bash
+npm run typecheck
+```
+
+Run against a single browser:
+
 ```bash
 npm run test:chromium
 npm run test:firefox
 npm run test:webkit
 ```
 
-### Headed mode (see the browser)
-```bash
-npm run test:headed
-```
+Run a specific spec or filter tests by title:
 
-### Debug mode (step through tests)
 ```bash
-npm run test:debug
-```
-
-### Interactive UI mode
-```bash
-npm run test:ui
-```
-
-### Specific test file
-```bash
-npx playwright test tests/auth.spec.ts
-npx playwright test tests/checkout.spec.ts
-```
-
-### Specific test by name
-```bash
+npx playwright test tests/network-mock.spec.ts
+npx playwright test tests/place-order.spec.ts --project=chromium
 npx playwright test -g "Register a new user"
 ```
 
-### Update visual baselines
+Useful interactive modes:
+
 ```bash
+npm run test:headed
+npm run test:debug
+npm run test:ui
+```
+
+Run accessibility tests or update screenshot baselines:
+
+```bash
+npm run test:accessibility
 npm run test:visual
 ```
 
----
+Review visual diffs before accepting updated baselines; updating snapshots changes
+expected output and should not be used just to silence an unexpected difference.
 
-## Viewing Reports
+## Reports and debugging
 
-### HTML Report
+The configured reporters include terminal output, an HTML report, and a JSON result
+file. Run:
+
 ```bash
 npm run report
 ```
-Opens an interactive report showing every test, its steps, screenshots on failure,
-and trace files for retried tests.
 
-### Trace Viewer
-When a test fails and retries, Playwright captures a trace. View it with:
-```bash
-npx playwright show-trace test-results/<test-folder>/trace.zip
-```
-The Trace Viewer shows a timeline of every action, screenshots at each step,
-DOM snapshots, network requests, and console logs.
+For failed or retried tests:
 
-### JSON Report
-Machine-readable results are written to `reports/results.json` for CI/CD integration.
+1. Read the terminal failure and identify the failed assertion or action.
+2. Open the HTML report for screenshots, videos, and test attachments.
+3. Open a trace archive from `test-results/`:
 
----
+   ```bash
+   npx playwright show-trace test-results/<test-folder>/trace.zip
+   ```
 
-## Test Coverage
+4. Re-run only the failing spec and browser while investigating.
 
-| Test File | What It Covers | Requirement |
-|---|---|---|
-| `auth.spec.ts` | Registration, login, logout, invalid login | User Registration/Login/Logout |
-| `product-search.spec.ts` | Data-driven search with 5 terms, product details | Product Search |
-| `cart.spec.ts` | Add/remove items, verify quantities and totals | Add/Remove Products from Cart |
-| `checkout.spec.ts` | Full purchase: register, cart, checkout, payment | Checkout Flow + Order Placement |
-| `contact-us.spec.ts` | Form fill, file upload, submit, success message | Contact Us Form Validation |
-| `accessibility.spec.ts` | axe-core WCAG 2.0 A/AA on 3 pages | Accessibility Testing |
-| `visual.spec.ts` | Screenshot baseline comparison on 3 pages | Visual Regression Testing |
-| `network-mock.spec.ts` | Request interception, blocking, mocking, timing | Network Interception and Mocking |
+Configured artifacts:
 
-**Total: 8 test files with 20+ individual test cases.**
+| Artifact | Location |
+|---|---|
+| HTML report | `reports/html-report/` |
+| JSON results | `reports/results.json` |
+| Test output and traces | `test-results/` |
+| Visual baselines | `tests/visual.spec.ts-snapshots/` |
+| Generated accounts and invoice | `reports/` |
 
----
+## Latest execution results
 
-## Framework Components Explained
+**Baseline full run before serializing shared-account tests: October 17, 2026.** The
+run executed 30 browser-test cases across 7 workers:
 
-### Page Object Model (POM)
+| Result | Count |
+|---|---:|
+| Passed | 18 |
+| Failed | 4 |
+| Flaky (failed once, passed on retry) | 2 |
+| Skipped | 6 |
 
-Each page of the application has a corresponding TypeScript class that encapsulates:
-- **Locators:** Defined once as `private readonly` properties in the constructor
-- **Actions:** Public methods that perform user interactions (login, search, addToCart)
-- **Assertions:** Public methods that verify page state (verifyLoggedIn, verifySearchResults)
+The six skips are the Firefox and WebKit visual checks: visual baselines are restricted
+to Chromium. The remaining failures were:
 
-**Why this matters:** When a UI element changes, you update one file. Not twenty tests.
+1. **Place order — Chromium and WebKit:** the cart had 2 rows when the test expected 3.
+   Chromium's retry also timed out while opening the cart.
+2. **Place order — Firefox:** the test timed out waiting for the checkout URL after
+   proceeding from the cart.
+3. **Place order — WebKit retry:** the expected cart item was found but hidden.
+4. **Search and add to cart — WebKit:** a product quantity was `2` when the test
+   expected `1`.
 
-The locator strategy prioritizes stability:
-1. `data-qa` attributes (most stable, explicitly for testing)
-2. Semantic selectors (`a[href="/login"]`, form input names)
-3. Text-based selectors (`h2:has-text("Login")`) as last resort
+The search-and-add scenario was flaky in Chromium and Firefox but passed on retry.
+The suite was subsequently configured to use one worker to prevent cross-test cart
+state races. Re-run the affected tests after that configuration change to verify the
+fix. Results can still vary because the suite uses a live external demo site and the
+tests may create accounts, carts, or orders.
 
-### Custom Fixtures
+## Implementation and verification walkthrough
 
-Playwright fixtures work like dependency injection. Tests declare what page objects they need:
+Use this sequence to explain the project from beginning to end:
 
-```typescript
-test('Login test', async ({ loginPage, homePage }) => {
-  // loginPage and homePage are automatically constructed and injected
-});
-```
+1. **Define the goal:** automate repeatable e-commerce workflows and quality checks
+   against a browser-visible demo application.
+2. **Choose the stack:** use TypeScript for typed page and test data, and Playwright
+   Test for browser control, assertions, retries, routing, and reporting.
+3. **Build reusable layers:** establish configuration, `BasePage`, individual page
+   objects, and custom fixtures so tests share setup and actions.
+4. **Add scenarios:** cover user lifecycle, product discovery, cart changes,
+   checkout/invoice, contact form, and cross-cutting quality checks.
+5. **Add diagnostics:** collect HTML/JSON reports, screenshots on failure, traces on
+   retry, and Chromium visual baselines.
+6. **Run and triage:** run `npm test` across Chromium, Firefox, and WebKit; inspect
+   the report and isolate the remaining browser-specific failures listed above.
+7. **Fix a test-blocking syntax issue:** the first line of `pages/product-detail.page.ts`
+   had accidental command text before its comment. Removing that prefix restored
+   TypeScript parsing and allowed the Playwright suite to execute.
+8. **Record the verified state:** the latest observed run was 18 passed, 4 failed,
+   2 flaky, and 6 skipped. Do not describe the full suite as passing until those
+   outstanding failures are resolved and re-tested.
 
-The `page` fixture is overridden to block ad requests:
+## Known limits and next steps
 
-```typescript
-page: async ({ page }, use) => {
-  await page.route(/google|doubleclick|googlesyndication/, route => route.abort());
-  await use(page);
-},
-```
+- Tests depend on a public site and internet access; this is not a self-hosted,
+  deterministic test environment.
+- Some end-to-end flows share generated account data and can affect site state.
+- Cart and checkout behavior differs across browsers in the latest recorded run.
+- Test registration, cart, payment, or order flows may create data on the target
+  site. Use only the intended demo environment and test data.
+- A sensible next step is to investigate cart state and checkout navigation first,
+  then re-run the affected specs in each browser before another full-suite run.
 
-### Data-Driven Testing
+## Presentation outline
 
-Test data lives in JSON files under `testdata/`. The `data-reader.ts` utility reads them
-with type safety:
+1. **Problem:** manual e-commerce regression takes repeated effort and may miss
+   browser-specific issues.
+2. **Solution:** a reusable Playwright + TypeScript test framework.
+3. **Architecture:** configuration, fixtures, page objects, data, tests, and reports.
+4. **Demonstration:** run registration/login, product/cart, or contact form tests.
+5. **Quality coverage:** accessibility, visual regression, network routing, and
+   three-browser execution.
+6. **Results:** show the latest run counts and explain that failures are tracked
+   transparently rather than hidden.
+7. **Next steps:** stabilize cart/checkout flows, re-run tests, and update this
+   section with verified results.
 
-```typescript
-const users = getUsers();        // Returns typed UserTestData
-const products = getProducts();  // Returns typed ProductTestData
-```
+## Related documentation
 
-The product search test demonstrates data-driven iteration:
-
-```typescript
-for (const searchTerm of productData.searchTerms) {
-  test(`Search for "${searchTerm}"`, async ({ productsPage }) => {
-    // One test generated per search term from JSON
-  });
-}
-```
-
-### Network Interception
-
-Playwright's `page.route()` can intercept any HTTP request:
-
-- **Block requests:** Abort ad/tracking scripts for test stability
-- **Monitor requests:** Log URLs and status codes for validation
-- **Mock responses:** Return custom data for edge case testing
-- **Simulate conditions:** Add artificial latency to test slow network handling
-
-### Accessibility Testing
-
-`@axe-core/playwright` runs the axe-core engine inside the page and reports WCAG violations:
-
-```typescript
-const results = await new AxeBuilder({ page })
-  .withTags(['wcag2a', 'wcag2aa'])
-  .analyze();
-```
-
-Tests filter for `critical` and `serious` violations, logging full details (rule ID,
-description, help URL, affected elements) for any failures.
-
-### Visual Regression
-
-Playwright's `toHaveScreenshot()` compares the current page against a stored baseline:
-
-```typescript
-await expect(page).toHaveScreenshot('home-page.png', {
-  maxDiffPixelRatio: 0.05,
-  fullPage: true,
-});
-```
-
-- First run: Creates baseline images in `tests/visual.spec.ts-snapshots/`
-- Subsequent runs: Compares against baselines, fails if difference exceeds 5%
-- Update baselines: `npx playwright test --update-snapshots`
-
-### Cross-Browser Execution
-
-The `playwright.config.ts` defines three browser projects:
-
-```typescript
-projects: [
-  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-  { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-  { name: 'webkit',  use: { ...devices['Desktop Safari'] } },
-]
-```
-
-`npm test` runs all tests across all three browsers. Use `--project=chromium` to target one.
-
----
-
-## Debugging Failures
-
-### 1. Check the HTML Report
-```bash
-npm run report
-```
-Every failed test includes a screenshot and (on retry) a trace file.
-
-### 2. Open the Trace Viewer
-Click the trace icon in the HTML report, or run:
-```bash
-npx playwright show-trace test-results/<folder>/trace.zip
-```
-
-### 3. Run in Debug Mode
-```bash
-npm run test:debug
-```
-Opens Playwright Inspector with step-through execution, locator highlighting, and DOM exploration.
-
-### 4. Run in UI Mode
-```bash
-npm run test:ui
-```
-Interactive test runner with time-travel debugging, watch mode, and filtering.
-
-### 5. Check Logs
-Test execution logs are written to `reports/test-execution.log` with timestamps and severity levels.
-
----
-
-## Adding New Tests
-
-### 1. Create a page object (if testing a new page)
-```typescript
-// pages/new-page.page.ts
-export class NewPage extends BasePage {
-  private readonly someElement: Locator;
-
-  constructor(page: Page) {
-    super(page);
-    this.someElement = page.locator('[data-qa="element"]');
-  }
-
-  async doSomething(): Promise<void> {
-    await this.someElement.click();
-  }
-}
-```
-
-### 2. Register it in fixtures
-```typescript
-// fixtures/test-fixtures.ts
-newPage: async ({ page }, use) => {
-  await use(new NewPage(page));
-},
-```
-
-### 3. Write the test
-```typescript
-// tests/new-feature.spec.ts
-import { test, expect } from '../fixtures/test-fixtures';
-
-test('New feature works', async ({ newPage }) => {
-  // test implementation
-});
-```
-
-### 4. Add test data (if needed)
-Create a JSON file in `testdata/` and add a reader function in `utils/data-reader.ts`.
-
----
-
-## Design Decisions
-
-See [FRAMEWORK_DECISIONS.md](./FRAMEWORK_DECISIONS.md) for detailed reasoning behind every
-architectural choice, including:
-
-- Why Playwright over Selenium
-- Why TypeScript over JavaScript
-- Why POM with class inheritance
-- Why custom fixtures with ad blocking
-- Why JSON for test data
-- Why axe-core for accessibility
-- Why built-in visual regression
-- Why network interception for ad blocking
-- Why this folder structure
-- Why environment configuration with dotenv
-- Why multiple reporters
-- Why trace on first retry
-- Why unique emails per test run
-- Why BasePage inheritance
+- [Framework architecture decisions](./FRAMEWORK_DECISIONS.md)
+- [Presentation guide](./docs/presentation-guide.html)
+- [Project walkthrough](./docs/project-walkthrough.html)
+- [Presentation material](./docs/presentation.html)
+- [Manual test cases](./docs/manual-test-cases.html)

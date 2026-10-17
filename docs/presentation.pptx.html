@@ -1,0 +1,496 @@
+<title>Playwright Capstone Presentation</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #0f172a;
+    --fg: #e2e8f0;
+    --surface: #1e293b;
+    --border: #334155;
+    --accent: #3b82f6;
+    --accent2: #8b5cf6;
+    --accent-glow: rgba(59,130,246,0.15);
+    --muted: #94a3b8;
+    --code-bg: #0f172a;
+    --green: #4ade80;
+    --orange: #fb923c;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #ffffff; --fg: #0f172a; --surface: #f8fafc; --border: #e2e8f0;
+      --accent: #2563eb; --accent2: #7c3aed; --accent-glow: rgba(37,99,235,0.08);
+      --muted: #64748b; --code-bg: #f1f5f9; --green: #16a34a; --orange: #ea580c;
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --fg: #0f172a; --surface: #f8fafc; --border: #e2e8f0;
+    --accent: #2563eb; --accent2: #7c3aed; --accent-glow: rgba(37,99,235,0.08);
+    --muted: #64748b; --code-bg: #f1f5f9; --green: #16a34a; --orange: #ea580c;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font-body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .deck { height: 100%; display: flex; flex-direction: column; }
+
+  /* Slide container */
+  .slide { display: none; flex: 1; padding: 2.5rem 3rem; overflow-y: auto; }
+  .slide.active { display: flex; flex-direction: column; justify-content: center; }
+
+  /* Navigation */
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; border-top: 1px solid var(--border); background: var(--surface); flex-shrink: 0; }
+  .nav button { background: var(--accent); color: #fff; border: none; padding: 0.5rem 1.25rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .nav button:disabled { opacity: 0.3; cursor: default; }
+  .nav button:hover:not(:disabled) { filter: brightness(1.15); }
+  .nav-counter { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+  .nav-dots { display: flex; gap: 6px; }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; cursor: pointer; }
+  .nav-dot.active { background: var(--accent); }
+
+  /* Typography */
+  .slide h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800; line-height: 1.2; margin-bottom: 1rem; text-wrap: balance; }
+  .slide h2 { font-size: clamp(1.25rem, 3vw, 1.75rem); font-weight: 700; margin-bottom: 1.25rem; text-wrap: balance; }
+  .slide h3 { font-size: 1.1rem; font-weight: 600; color: var(--accent); margin: 1.25rem 0 0.5rem; }
+  .slide p { font-size: 1rem; line-height: 1.7; margin-bottom: 0.75rem; max-width: 65ch; }
+  .slide li { margin-bottom: 0.5rem; line-height: 1.6; }
+  .slide ul { padding-left: 1.25rem; margin-bottom: 1rem; }
+  .subtitle { color: var(--muted); font-size: 1.1rem; font-weight: 400; }
+  .label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+
+  /* Code */
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.65; margin: 0.75rem 0; }
+  code { font-family: var(--font-mono); font-size: 0.85em; background: var(--accent-glow); padding: 0.15em 0.4em; border-radius: 4px; }
+  pre code { background: none; padding: 0; }
+
+  /* Cards */
+  .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .card-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .card p { font-size: 0.85rem; color: var(--muted); margin: 0; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { text-align: left; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); }
+  th { font-weight: 600; color: var(--accent); font-size: 0.8rem; letter-spacing: 0.03em; }
+
+  /* Flow diagram */
+  .flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600; }
+  .flow-arrow { color: var(--accent); font-weight: 700; }
+
+  /* Tag */
+  .tag { display: inline-block; padding: 0.2em 0.6em; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+  .tag-blue { background: var(--accent-glow); color: var(--accent); }
+  .tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+  .tag-orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+
+  /* Highlight box */
+  .highlight { background: var(--accent-glow); border-left: 3px solid var(--accent); padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+
+  /* Two column */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1rem 0; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Center slide */
+  .center { text-align: center; align-items: center; }
+
+  /* Keyboard hint */
+  .key-hint { position: fixed; bottom: 4rem; right: 1.5rem; color: var(--muted); font-size: 0.75rem; }
+</style>
+
+<div class="deck">
+  <!-- ===== SLIDE 1: Title ===== -->
+  <div class="slide center" data-slide="1">
+    <div class="label">Perficient Capstone Project</div>
+    <h1 style="background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Enterprise E-Commerce<br>Automation Framework</h1>
+    <p class="subtitle">Playwright + TypeScript | Cross-Browser | Production-Ready</p>
+    <p style="color: var(--muted); margin-top: 2rem; font-size: 0.9rem;">Hariteja Chintakunta | Automation QA Engineer</p>
+  </div>
+
+  <!-- ===== SLIDE 2: Problem ===== -->
+  <div class="slide" data-slide="2">
+    <div class="label">The Challenge</div>
+    <h2>Why We Need Automation</h2>
+    <div class="card-row">
+      <div class="card">
+        <h4>Manual Testing Pain</h4>
+        <p>Testing registration, search, cart, checkout, and payment across 3 browsers takes hours every release.</p>
+      </div>
+      <div class="card">
+        <h4>Business Risk</h4>
+        <p>Critical customer journeys break silently. Bugs reach production because manual testing can't cover everything.</p>
+      </div>
+      <div class="card">
+        <h4>Scale Problem</h4>
+        <p>As features grow, manual effort grows linearly. Automated tests run in minutes regardless of suite size.</p>
+      </div>
+    </div>
+    <div class="highlight">
+      <strong>Goal:</strong> Build a scalable, maintainable Playwright framework that automates all critical e-commerce flows, runs across browsers, and produces clear reports for stakeholders.
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 3: Why Playwright ===== -->
+  <div class="slide" data-slide="3">
+    <div class="label">Technology Choice</div>
+    <h2>Why Playwright?</h2>
+    <div class="two-col">
+      <div>
+        <h3>Auto-Waiting</h3>
+        <p>No explicit waits. Playwright waits for elements to be visible, enabled, and stable before acting.</p>
+        <pre><code>// Selenium: you write waits manually
+WebDriverWait(driver, 10).until(...)
+
+// Playwright: auto-waits for you
+await page.locator('#submit').click();</code></pre>
+      </div>
+      <div>
+        <h3>Built-In Power Tools</h3>
+        <ul>
+          <li><span class="tag tag-blue">Network Mocking</span> Intercept and mock HTTP requests natively</li>
+          <li><span class="tag tag-blue">Trace Viewer</span> Timeline replay of every test action</li>
+          <li><span class="tag tag-blue">Visual Regression</span> Screenshot comparison built in</li>
+          <li><span class="tag tag-blue">3 Browsers</span> Chrome, Firefox, Safari from one API</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 4: Architecture ===== -->
+  <div class="slide" data-slide="4">
+    <div class="label">Framework Design</div>
+    <h2>Architecture Overview</h2>
+    <div class="two-col">
+      <div>
+        <pre><code>playwright-capstone/
+  config/          Environment settings
+  fixtures/        Page object injection + ad blocking
+  pages/           Page Object Model classes
+    base.page.ts     Shared methods
+    home.page.ts     Navigation, login state
+    login.page.ts    Login + signup forms
+    signup.page.ts   Registration form
+    cart.page.ts     Cart operations
+    checkout.page.ts Payment flow
+    contact-us.page.ts Contact form
+  tests/           Test scenarios
+  testdata/        JSON test data
+  utils/           Logger, data reader
+  reports/         HTML reports, traces</code></pre>
+      </div>
+      <div>
+        <h3>Design Principles</h3>
+        <ul>
+          <li><strong>Page Object Model</strong> &mdash; One class per page. Locators defined once.</li>
+          <li><strong>Custom Fixtures</strong> &mdash; Dependency injection + ad blocking in one place.</li>
+          <li><strong>Data Separation</strong> &mdash; Test logic separate from test data.</li>
+          <li><strong>Type Safety</strong> &mdash; TypeScript catches errors at compile time.</li>
+        </ul>
+        <div class="highlight" style="margin-top: 1rem;">
+          When a UI element changes, I update <strong>one file</strong> &mdash; not twenty tests.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 5: Page Object Model ===== -->
+  <div class="slide" data-slide="5">
+    <div class="label">Core Pattern</div>
+    <h2>Page Object Model in Action</h2>
+    <div class="two-col">
+      <div>
+        <h3>LoginPage (pages/login.page.ts)</h3>
+        <pre><code>export class LoginPage extends BasePage {
+  private readonly signupName: Locator;
+  private readonly signupEmail: Locator;
+  private readonly signupButton: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.signupName =
+      page.locator('[data-qa="signup-name"]');
+    this.signupEmail =
+      page.locator('[data-qa="signup-email"]');
+    this.signupButton =
+      page.locator('[data-qa="signup-button"]');
+  }
+
+  async startSignup(name: string, email: string) {
+    await this.signupName.fill(name);
+    await this.signupEmail.fill(email);
+    await this.signupButton.click();
+  }
+}</code></pre>
+      </div>
+      <div>
+        <h3>How the Test Uses It</h3>
+        <pre><code>// user-registration.spec.ts
+test('Register a new user', async ({
+  homePage, loginPage, signupPage,
+}) => {
+  const uniqueName =
+    `hariteja_${timeStamp}_${rand}`;
+  const uniqueEmail =
+    `haritejac_${timeStamp}_${rand}@hotmail.com`;
+
+  await homePage.open();
+  await homePage.goToLogin();
+  await loginPage.startSignup(
+    uniqueName, uniqueEmail
+  );
+  await signupPage.fillRegistrationForm({...});
+  await signupPage.submitRegistration();
+  await signupPage.verifyAccountCreated();
+});</code></pre>
+        <p style="margin-top: 0.75rem; color: var(--muted); font-size: 0.9rem;">Tests read like business requirements, not HTML details. Every run generates a unique name and email.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 6: Test Coverage ===== -->
+  <div class="slide" data-slide="6">
+    <div class="label">Functional Coverage</div>
+    <h2>Test Cases Built Today</h2>
+    <table>
+      <tr><th>Test</th><th>Scenario</th><th>Key Verification</th></tr>
+      <tr>
+        <td><strong>User Registration</strong></td>
+        <td>Register with unique name/email, fill full form, create account</td>
+        <td>Account created, credentials saved to JSON</td>
+      </tr>
+      <tr>
+        <td><strong>User Login</strong></td>
+        <td>Read latest account from JSON, log in</td>
+        <td>"Logged in as" text visible</td>
+      </tr>
+      <tr>
+        <td><strong>User Logout</strong></td>
+        <td>Log in, then log out</td>
+        <td>Login link reappears (session ended)</td>
+      </tr>
+      <tr>
+        <td><strong>Search &amp; Add to Cart</strong></td>
+        <td>Men &gt; T-Shirts &gt; Polo brand, add 3 products</td>
+        <td>Cart has 3 items with correct names/prices</td>
+      </tr>
+      <tr>
+        <td><strong>Remove Product</strong></td>
+        <td>Add 3 products, remove one</td>
+        <td>2 remain, removed product is gone</td>
+      </tr>
+      <tr>
+        <td><strong>Place Order</strong></td>
+        <td>Full checkout: cart &rarr; payment &rarr; invoice download</td>
+        <td>Order confirmed, invoice validated, session active</td>
+      </tr>
+      <tr>
+        <td><strong>Contact Us Form</strong></td>
+        <td>Fill form, upload file, submit</td>
+        <td>Success message displayed</td>
+      </tr>
+    </table>
+    <p style="color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem;">Each test is independent and uses the latest created account. Credentials persist across tests via <code>created-accounts.json</code>.</p>
+  </div>
+
+  <!-- ===== SLIDE 7: End-to-End Flow ===== -->
+  <div class="slide" data-slide="7">
+    <div class="label">Deep Dive</div>
+    <h2>Place Order &mdash; Full E2E Flow</h2>
+    <div class="flow">
+      <div class="flow-step">Login</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Clear Cart</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Browse Polo</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Add 3 Items</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Verify Cart</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Checkout</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Pay</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Download Invoice</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-step">Verify Home</div>
+    </div>
+    <div class="two-col" style="margin-top: 1rem;">
+      <div>
+        <h3>Payment Details Entry</h3>
+        <pre><code>await checkoutPage.fillPaymentDetails({
+  nameOnCard: 'Hariteja',
+  cardNumber: '4028743400541234',
+  cvc: '134',
+  expiryMonth: '10',
+  expiryYear: '12',
+});
+await checkoutPage.confirmPayment();
+await checkoutPage.verifyOrderPlaced();</code></pre>
+      </div>
+      <div>
+        <h3>Invoice Validation</h3>
+        <pre><code>// Download the invoice file
+const [download] = await Promise.all([
+  page.waitForEvent('download'),
+  page.locator('a:has-text("Download Invoice")')
+    .click(),
+]);
+await download.saveAs(invoicePath);
+
+// Read and validate content
+const invoice = fs.readFileSync(invoicePath, 'utf-8');
+expect(invoice).toContain('purchase amount');
+expect(invoice).toContain('Thank you');</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 8: Fixtures + Ad Blocking ===== -->
+  <div class="slide" data-slide="8">
+    <div class="label">Infrastructure</div>
+    <h2>Custom Fixtures &amp; Stability</h2>
+    <div class="two-col">
+      <div>
+        <h3>Dependency Injection</h3>
+        <pre><code>// fixtures/test-fixtures.ts
+export const test = base.extend({
+  // Block ads that overlay elements
+  page: async ({ page }, use) => {
+    await page.route(
+      /google|facebook|doubleclick
+       |googlesyndication|adservice/,
+      (route) => route.abort()
+    );
+    await use(page);
+  },
+
+  homePage: async ({ page }, use) => {
+    await use(new HomePage(page));
+  },
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
+  },
+  // ... all page objects injected
+});</code></pre>
+      </div>
+      <div>
+        <h3>Why This Matters</h3>
+        <ul>
+          <li><strong>Ad Blocking:</strong> automationexercise.com loads Google Ads that overlay clickable elements. Blocking at network level is more reliable than closing popups.</li>
+          <li><strong>Lazy Loading:</strong> Page objects are only created when a test requests them.</li>
+          <li><strong>Test Isolation:</strong> Each test gets its own browser context. No shared state.</li>
+        </ul>
+        <h3>Cart Cleanup Pattern</h3>
+        <pre><code>// Clear leftover items from server-side cart
+const deleteButtons =
+  page.locator('td.cart_delete a');
+let count = await deleteButtons.count();
+while (count > 0) {
+  await deleteButtons.first().click();
+  count--;
+}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 9: Reporting + Debugging ===== -->
+  <div class="slide" data-slide="9">
+    <div class="label">Observability</div>
+    <h2>Reporting &amp; Debugging</h2>
+    <div class="card-row">
+      <div class="card">
+        <h4>HTML Report</h4>
+        <p>Interactive dashboard with pass/fail, screenshots on failure, and trace files.</p>
+        <pre><code>npm run report</code></pre>
+      </div>
+      <div class="card">
+        <h4>Trace Viewer</h4>
+        <p>Timeline replay: every action, DOM snapshots, network requests, console logs.</p>
+        <pre><code>npx playwright show-trace
+  test-results/.../trace.zip</code></pre>
+      </div>
+      <div class="card">
+        <h4>Debug Mode</h4>
+        <p>Step-through execution with Inspector. Locator highlighting and DOM exploration.</p>
+        <pre><code>npx playwright test --debug</code></pre>
+      </div>
+    </div>
+    <div class="highlight" style="margin-top: 1rem;">
+      <strong>Three reporters configured:</strong> <code>list</code> (console), <code>html</code> (stakeholders), <code>json</code> (CI/CD integration). Traces captured only on first retry to save storage.
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 10: Summary ===== -->
+  <div class="slide center" data-slide="10">
+    <div class="label">Wrap Up</div>
+    <h2>What We Delivered</h2>
+    <div class="card-row" style="max-width: 700px;">
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--accent);">7</div>
+        <p>Test Scenarios</p>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--accent2);">9</div>
+        <p>Page Objects</p>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--green);">3</div>
+        <p>Browsers</p>
+      </div>
+    </div>
+    <div style="margin-top: 2rem; max-width: 600px; text-align: left;">
+      <h3>Next Steps</h3>
+      <ul>
+        <li>CI/CD pipeline integration (GitHub Actions)</li>
+        <li>API-level testing for backend validation</li>
+        <li>Mobile viewport testing</li>
+        <li>Performance benchmarking</li>
+      </ul>
+    </div>
+    <p style="color: var(--muted); margin-top: 2.5rem; font-size: 1.1rem;">Thank you. Open for questions.</p>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav">
+    <button id="prev" onclick="go(-1)">Previous</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+      <div class="nav-dots" id="dots"></div>
+      <div class="nav-counter" id="counter"></div>
+    </div>
+    <button id="next" onclick="go(1)">Next</button>
+  </div>
+</div>
+
+<div class="key-hint">Arrow keys or click to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+    document.getElementById('counter').textContent = (cur + 1) + ' / ' + total;
+    document.getElementById('prev').disabled = cur === 0;
+    document.getElementById('next').disabled = cur === total - 1;
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('div');
+      d.className = 'nav-dot' + (i === cur ? ' active' : '');
+      d.onclick = () => { cur = i; render(); };
+      dots.appendChild(d);
+    }
+  }
+
+  function go(dir) { cur = Math.max(0, Math.min(total - 1, cur + dir)); render(); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+  });
+
+  render();
+</script>

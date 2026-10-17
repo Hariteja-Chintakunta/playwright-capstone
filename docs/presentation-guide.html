@@ -1,0 +1,556 @@
+<title>Playwright Framework Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: single-column document with side navigation on wide screens */
+  :root {
+    --bg: #fafaf9;
+    --fg: #1c1917;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --muted: #78716c;
+    --code-bg: #f5f5f4;
+    --success: #16a34a;
+    --warn: #d97706;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0a09; --fg: #e7e5e4; --surface: #1c1917; --border: #292524;
+      --accent: #60a5fa; --accent-soft: #1e3a5f; --muted: #a8a29e;
+      --code-bg: #1c1917; --success: #4ade80; --warn: #fbbf24;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0a09; --fg: #e7e5e4; --surface: #1c1917; --border: #292524;
+    --accent: #60a5fa; --accent-soft: #1e3a5f; --muted: #a8a29e;
+    --code-bg: #1c1917; --success: #4ade80; --warn: #fbbf24;
+    color-scheme: dark;
+  }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font-body);
+    line-height: 1.7; padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    max-width: 900px; margin: 0 auto; padding-block: 2rem;
+  }
+  h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem; text-wrap: balance; }
+  h2 { font-size: 1.35rem; font-weight: 700; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent); text-wrap: balance; }
+  h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: var(--accent); }
+  h4 { font-size: 1rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
+  p { margin: 0 0 1rem; }
+  code { font-family: var(--font-mono); font-size: 0.85em; background: var(--code-bg); padding: 0.15em 0.4em; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; margin: 0 0 1.25rem; }
+  pre code { background: none; padding: 0; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .tip { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  .tip strong { color: var(--accent); }
+  .warn { background: color-mix(in srgb, var(--warn) 12%, transparent); border-left: 4px solid var(--warn); padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+  th { font-weight: 600; color: var(--accent); }
+  .toc { display: flex; flex-direction: column; gap: 0.35rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.95rem; }
+  .toc a:hover { text-decoration: underline; }
+  .tag { display: inline-block; padding: 0.15em 0.5em; border-radius: 4px; font-size: 0.8rem; font-weight: 500; }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .slide { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin: 0.75rem 0; }
+  .slide-num { font-weight: 700; color: var(--accent); margin-right: 0.5rem; }
+  .qa { margin: 0.75rem 0; }
+  .qa strong { color: var(--accent); }
+  details { margin: 0.5rem 0; }
+  summary { cursor: pointer; font-weight: 600; padding: 0.5rem 0; }
+  details[open] summary { margin-bottom: 0.5rem; }
+  .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 2rem; }
+</style>
+
+<h1>Playwright Framework Presentation Guide</h1>
+<p class="subtitle">Complete preparation for Hariteja's client/interview presentation</p>
+
+<div class="section">
+  <h3>Table of Contents</h3>
+  <nav class="toc">
+    <a href="#big-picture">1. The Big Picture</a>
+    <a href="#creation">2. How I Created the Framework</a>
+    <a href="#config">3. How I Configured It</a>
+    <a href="#concepts">4. Key Concepts with Analogies</a>
+    <a href="#test-cases">5. My Test Cases</a>
+    <a href="#together">6. How It All Works Together</a>
+    <a href="#debugging">7. Debugging Demo</a>
+    <a href="#slides">8. Presentation Script (10 Slides)</a>
+    <a href="#qa">9. Interview Q&A (20 Questions)</a>
+    <a href="#tips">10. Tips for Tonight</a>
+  </nav>
+</div>
+
+<!-- ====== SECTION 1 ====== -->
+<h2 id="big-picture">1. The Big Picture</h2>
+
+<h3>What is Playwright?</h3>
+<p>Playwright is a tool that controls a real web browser (Chrome, Firefox, Safari) through code. Instead of a person clicking buttons and typing text, your TypeScript code does it automatically. Think of it like a <strong>robot sitting at your computer</strong>, clicking exactly where you tell it to, typing what you say, and checking if the page shows the right thing.</p>
+
+<h3>Why not just test manually?</h3>
+<p>Imagine you have a shopping website. Every time a developer changes something, someone has to: register a new user, log in, search products, add to cart, checkout, pay, verify the invoice... across 3 browsers. That's <strong>hours of clicking</strong> every single time. Playwright does it all in <strong>under 2 minutes</strong>.</p>
+
+<h3>Why Playwright over Selenium?</h3>
+<table>
+  <tr><th>Feature</th><th>Selenium</th><th>Playwright</th></tr>
+  <tr><td>Waiting for elements</td><td>You write explicit waits</td><td>Auto-waits for you</td></tr>
+  <tr><td>Speed</td><td>HTTP protocol (slower)</td><td>Direct browser protocol (faster)</td></tr>
+  <tr><td>Browsers</td><td>Needs separate drivers</td><td>All 3 built in</td></tr>
+  <tr><td>Network mocking</td><td>Needs extra tools</td><td>Built in</td></tr>
+  <tr><td>Trace debugging</td><td>Nothing comparable</td><td>Full timeline replay</td></tr>
+  <tr><td>Visual testing</td><td>Third-party libraries</td><td>Built in</td></tr>
+</table>
+
+<h3>What is a test automation framework?</h3>
+<p><strong>Analogy:</strong> Think of a restaurant kitchen. You don't just have a chef cooking randomly. You have:</p>
+<ul>
+  <li><strong>Recipes</strong> (test cases) &mdash; what to cook</li>
+  <li><strong>Ingredients storage</strong> (test data) &mdash; organized in the pantry</li>
+  <li><strong>Standard tools</strong> (page objects) &mdash; same knife for every chef</li>
+  <li><strong>Quality checks</strong> (assertions) &mdash; taste before serving</li>
+  <li><strong>Kitchen layout</strong> (folder structure) &mdash; everyone knows where things are</li>
+</ul>
+<p>A framework is the <strong>organized kitchen</strong> that makes cooking (testing) fast, consistent, and repeatable.</p>
+
+<h3>The Problem Statement (5 Lines)</h3>
+<div class="section">
+  <ol>
+    <li>Our client runs an online retail platform with critical customer journeys (register, shop, pay).</li>
+    <li>Testing these flows manually across 3 browsers takes hours and misses bugs.</li>
+    <li>They need automated tests that run reliably every time code changes.</li>
+    <li>The framework must be maintainable so new team members can add tests easily.</li>
+    <li>It must also cover accessibility, visual consistency, and produce clear reports for stakeholders.</li>
+  </ol>
+</div>
+
+<!-- ====== SECTION 2 ====== -->
+<h2 id="creation">2. How I Created the Framework</h2>
+
+<h3>Step 1: Setup Commands</h3>
+<pre><code># Install Node.js (download from nodejs.org, version 18+)
+# Then in your project folder:
+
+npm init -y                          # Creates package.json
+npm install -D @playwright/test      # Playwright test framework
+npm install -D @types/node           # TypeScript types for Node
+npm install @axe-core/playwright     # Accessibility testing
+npm install dotenv                   # Environment variables
+npx playwright install               # Downloads Chrome, Firefox, Safari</code></pre>
+
+<h3>Step 2: Folder Structure (What Each Folder Does)</h3>
+<pre><code>playwright-capstone/
+  config/        &rarr; Environment settings (which URL to test against)
+  fixtures/      &rarr; Setup code that runs before each test (like a waiter setting the table)
+  pages/         &rarr; One file per page of the website (the "map" of each page)
+  tests/         &rarr; The actual test scenarios (the "recipes")
+  testdata/      &rarr; Test data in JSON files (the "ingredients")
+  utils/         &rarr; Helper tools (logging, screenshots, data reading)
+  reports/       &rarr; Generated output: HTML reports, screenshots, traces</code></pre>
+
+<h3>Step 3: Order of File Creation</h3>
+<table>
+  <tr><th>Order</th><th>File</th><th>Why First?</th></tr>
+  <tr><td>1</td><td><code>playwright.config.ts</code></td><td>The master settings file. Everything starts here.</td></tr>
+  <tr><td>2</td><td><code>pages/base.page.ts</code></td><td>Shared methods all pages need (navigate, screenshot).</td></tr>
+  <tr><td>3</td><td><code>pages/home.page.ts</code>, <code>login.page.ts</code></td><td>First pages users interact with.</td></tr>
+  <tr><td>4</td><td><code>fixtures/test-fixtures.ts</code></td><td>Wires page objects into tests + blocks ads.</td></tr>
+  <tr><td>5</td><td><code>testdata/users.json</code></td><td>Test data needed for the first test.</td></tr>
+  <tr><td>6</td><td><code>tests/auth.spec.ts</code></td><td>First test: can a user register and log in?</td></tr>
+  <tr><td>7</td><td>Remaining pages + tests</td><td>Build outward from the core login flow.</td></tr>
+</table>
+
+<!-- ====== SECTION 3 ====== -->
+<h2 id="config">3. How I Configured It</h2>
+
+<h3>playwright.config.ts &mdash; Line by Line</h3>
+<pre><code>testDir: './tests'              // Where to find test files
+fullyParallel: true             // Run tests at the same time (faster)
+retries: process.env.CI ? 2 : 1 // Retry failed tests: 2x in CI, 1x locally
+workers: process.env.CI ? 1 : undefined // CI uses 1 worker; local uses all CPUs
+
+reporter: [
+  ['list'],                     // Console output while running
+  ['html', { outputFolder: 'reports/html-report' }], // Interactive HTML report
+  ['json', { outputFile: 'reports/results.json' }],  // For CI/CD dashboards
+]
+
+use: {
+  baseURL: 'https://automationexercise.com', // All navigations start from here
+  trace: 'on-first-retry',     // Record a trace only when a test fails + retries
+  screenshot: 'only-on-failure', // Take screenshot only when test fails
+  video: 'retain-on-failure',   // Keep video only for failed tests
+  actionTimeout: 15_000,        // Each click/fill must complete within 15 seconds
+  navigationTimeout: 30_000,    // Page loads must complete within 30 seconds
+}
+
+projects: [                     // Run on all 3 browsers
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  { name: 'firefox',  use: { ...devices['Desktop Firefox'] } },
+  { name: 'webkit',   use: { ...devices['Desktop Safari'] } },
+]</code></pre>
+
+<!-- ====== SECTION 4 ====== -->
+<h2 id="concepts">4. Key Concepts</h2>
+
+<h3>Page Object Model (POM)</h3>
+<p><strong>Analogy:</strong> Think of a TV remote. You press "Volume Up" &mdash; you don't care which circuit board signal fires. The remote is the <strong>page object</strong>. The circuit board is the <strong>HTML</strong>.</p>
+<pre><code>// login.page.ts - The "remote control" for the login page
+export class LoginPage extends BasePage {
+  private readonly loginEmail: Locator;     // The email button on the remote
+  private readonly loginPassword: Locator;  // The password button
+  private readonly loginButton: Locator;    // The "go" button
+
+  async login(email: string, password: string): Promise&lt;void&gt; {
+    await this.loginEmail.fill(email);      // Press email, type value
+    await this.loginPassword.fill(password);
+    await this.loginButton.click();         // Press go
+  }
+}</code></pre>
+<p><strong>Why:</strong> If the email field's HTML changes, you update <code>login.page.ts</code> once. Not every test.</p>
+
+<h3>Locator Strategy</h3>
+<p><strong>Analogy:</strong> Finding a house. "The blue house on 5th street" (CSS selector) vs "House #42" (data-qa attribute). The house number never changes even if you repaint.</p>
+<pre><code>// Best: data-qa attributes (made for testing, never change)
+page.locator('[data-qa="login-email"]')
+
+// Good: semantic selectors (tied to function)
+page.locator('a[href="/login"]')
+
+// Last resort: text-based
+page.locator('h2:has-text("Login to your account")')</code></pre>
+
+<h3>Auto-Waiting (No Hard Sleeps)</h3>
+<p><strong>Analogy:</strong> Imagine waiting for a bus. Selenium says "wait exactly 10 seconds" (you might wait too long or too short). Playwright says "wait until the bus arrives, up to 15 seconds." Smarter.</p>
+<pre><code>// BAD (Selenium-style): waits 3 seconds even if button appears instantly
+await page.waitForTimeout(3000);
+await page.click('#submit');
+
+// GOOD (Playwright): waits only until the button is clickable
+await page.locator('#submit').click(); // Auto-waits!</code></pre>
+
+<h3>Custom Fixtures</h3>
+<p><strong>Analogy:</strong> A hotel room service. You order "breakfast" and get everything prepared &mdash; you don't go to the kitchen yourself. Fixtures <strong>prepare page objects</strong> and hand them to your test.</p>
+<pre><code>// fixture sets up the page objects for you
+export const test = base.extend&lt;TestFixtures&gt;({
+  // Also blocks ads so tests don't get flaky
+  page: async ({ page }, use) =&gt; {
+    await page.route(/google|doubleclick|googlesyndication/, route =&gt; route.abort());
+    await use(page);
+  },
+  loginPage: async ({ page }, use) =&gt; { await use(new LoginPage(page)); },
+  homePage: async ({ page }, use) =&gt; { await use(new HomePage(page)); },
+});
+
+// In your test, just ask for what you need:
+test('Login test', async ({ loginPage, homePage }) =&gt; {
+  // loginPage and homePage are ready to use!
+});</code></pre>
+
+<h3>Data-Driven Testing</h3>
+<p><strong>Analogy:</strong> A mail merge. Same letter template, different names and addresses. Same test logic, different data.</p>
+<pre><code>// testdata/products.json has: { "searchTerms": ["top", "tshirt", "dress", ...] }
+
+for (const searchTerm of productData.searchTerms) {
+  test(`Search for "${searchTerm}"`, async ({ productsPage }) =&gt; {
+    await productsPage.searchProduct(searchTerm);
+    // One test generated per search term. Add a term = add a test. No code change.
+  });
+}</code></pre>
+
+<h3>Network Interception</h3>
+<p><strong>Analogy:</strong> A mail filter. You can block spam (ads), redirect letters (mock responses), or slow down delivery (simulate slow network).</p>
+<pre><code>// Block all images to test page without them
+await page.route('**/*.{png,jpg,gif}', route =&gt; route.abort());
+
+// Simulate slow network (add 300ms delay to every request)
+await page.route('**/*', async route =&gt; {
+  await new Promise(r =&gt; setTimeout(r, 300));
+  await route.continue();
+});</code></pre>
+
+<h3>Accessibility Testing (axe-core)</h3>
+<p><strong>Analogy:</strong> A building inspector checks if a building has wheelchair ramps and braille signs. axe-core checks if your website works for people with disabilities.</p>
+<pre><code>const results = await new AxeBuilder({ page })
+  .withTags(['wcag2a', 'wcag2aa'])  // Check against international standards
+  .analyze();
+
+// Filter for serious issues only
+const critical = results.violations.filter(v =&gt;
+  v.impact === 'critical' || v.impact === 'serious'
+);</code></pre>
+
+<h3>Visual Regression Testing</h3>
+<p><strong>Analogy:</strong> A "spot the difference" game. First run takes a photo (baseline). Every future run takes another photo and compares. If more than 5% of pixels changed, the test fails.</p>
+<pre><code>await expect(page).toHaveScreenshot('home-page.png', {
+  maxDiffPixelRatio: 0.05,  // Allow 5% pixel difference
+  fullPage: true,
+});</code></pre>
+
+<h3>Cross-Browser Execution</h3>
+<p>One command, three browsers. <code>npm test</code> runs all tests on Chrome, Firefox, and Safari. Use <code>--project=chromium</code> to target just one.</p>
+
+<h3>Reporting</h3>
+<ul>
+  <li><strong>HTML Report:</strong> Interactive dashboard with pass/fail, screenshots, traces. <code>npm run report</code></li>
+  <li><strong>JSON Report:</strong> Machine-readable for CI/CD pipelines.</li>
+  <li><strong>Console (list):</strong> Real-time output while tests run.</li>
+</ul>
+
+<h3>AI-Assisted Test Creation</h3>
+<p>I used <strong>Claude Code (AI assistant)</strong> and the <strong>Playwright MCP server</strong> in VS Code to help generate test code. Here is how I used it responsibly:</p>
+<ul>
+  <li>AI generated the initial test structure and locators</li>
+  <li>I reviewed every line, ran the tests, and fixed issues</li>
+  <li>I understood what each line does before keeping it</li>
+  <li>AI helped speed up writing; the design decisions were mine</li>
+</ul>
+
+<!-- ====== SECTION 5 ====== -->
+<h2 id="test-cases">5. My Test Cases</h2>
+
+<table>
+  <tr><th>#</th><th>Test File</th><th>What It Validates</th><th>Page Objects Used</th></tr>
+  <tr><td>1</td><td><code>user-registration.spec.ts</code></td><td>Register a new user with unique name/email each run, fill the full registration form, verify account created, save credentials to a JSON file</td><td>HomePage, LoginPage, SignupPage</td></tr>
+  <tr><td>2</td><td><code>user-login.spec.ts</code></td><td>Read the latest created account from JSON, log in with those credentials, verify "Logged in as" text appears</td><td>HomePage, LoginPage</td></tr>
+  <tr><td>3</td><td><code>user-logout.spec.ts</code></td><td>Log in with the latest account, click Logout, verify the Login link reappears (session ended)</td><td>HomePage, LoginPage</td></tr>
+  <tr><td>4</td><td><code>search-add-to-cart.spec.ts</code></td><td>Navigate Men &gt; T-Shirts &gt; Polo brand, add 3 products to cart, verify all 3 are in cart with correct names/prices/quantities</td><td>HomePage, LoginPage, CartPage</td></tr>
+  <tr><td>5</td><td><code>remove-product.spec.ts</code></td><td>Add 3 products, remove one, verify only 2 remain and the removed product is gone</td><td>HomePage, LoginPage, CartPage</td></tr>
+  <tr><td>6</td><td><code>place-order.spec.ts</code></td><td>Full checkout: add products, proceed to checkout, enter payment details, verify order confirmation, download invoice, validate invoice content, verify redirect to home page with active session</td><td>HomePage, LoginPage, CartPage, CheckoutPage</td></tr>
+  <tr><td>7</td><td><code>contact-us-form-validation.spec.ts</code></td><td>Fill contact form with name/email/subject/message, upload a file, submit, verify success message</td><td>HomePage, LoginPage, ContactUsPage</td></tr>
+  <tr><td>8</td><td><code>accessibility.spec.ts</code></td><td>Scan Home, Login, Products pages for WCAG 2.0 A/AA violations using axe-core</td><td>(direct page navigation)</td></tr>
+  <tr><td>9</td><td><code>visual.spec.ts</code></td><td>Screenshot comparison against baselines for Home, Login, Products pages</td><td>(direct page navigation)</td></tr>
+  <tr><td>10</td><td><code>network-mock.spec.ts</code></td><td>Intercept/log requests, mock search responses, block images, simulate slow network, validate status codes</td><td>(direct page navigation)</td></tr>
+</table>
+
+<!-- ====== SECTION 6 ====== -->
+<h2 id="together">6. How It All Works Together</h2>
+
+<h3>Tracing One Test from Start to Finish</h3>
+<div class="section">
+  <p><strong>Command:</strong> <code>npx playwright test tests/user-login.spec.ts --project=chromium</code></p>
+  <ol>
+    <li><strong>Config loaded:</strong> Playwright reads <code>playwright.config.ts</code> &mdash; gets baseURL, timeouts, browser settings</li>
+    <li><strong>Browser launched:</strong> Chromium starts (headless by default)</li>
+    <li><strong>Fixture runs:</strong> <code>test-fixtures.ts</code> creates a fresh browser page, blocks ad requests, creates HomePage and LoginPage objects</li>
+    <li><strong>Test data read:</strong> <code>getLatestAccount()</code> reads <code>created-accounts.json</code> for the latest credentials</li>
+    <li><strong>Page object actions:</strong> <code>homePage.open()</code> navigates to the site, <code>loginPage.login(email, password)</code> fills and submits the form</li>
+    <li><strong>Assertion:</strong> <code>homePage.verifyLoggedIn(name)</code> checks "Logged in as hariteja_..." is visible</li>
+    <li><strong>Cleanup:</strong> Browser closes, fixtures tear down</li>
+    <li><strong>Report generated:</strong> Results written to HTML report, JSON report, and console</li>
+  </ol>
+</div>
+
+<h3>Architecture Diagram</h3>
+<pre><code>
+  Command Line
+       |
+  playwright.config.ts  (browsers, timeouts, reporters)
+       |
+  test-fixtures.ts  (ad blocking + page object injection)
+       |
+  +-----------+     +-----------+     +-----------+
+  | Test File | --> | Page      | --> | Browser   |
+  | (spec.ts) |     | Objects   |     | (Chrome/  |
+  |           |     | (pages/)  |     |  Firefox/ |
+  |           |     |           |     |  Safari)  |
+  +-----------+     +-----------+     +-----------+
+       |                 |
+  testdata/         utils/
+  (JSON files)      (logger, data-reader)
+       |
+  reports/
+  (HTML, JSON, screenshots, traces)
+</code></pre>
+
+<!-- ====== SECTION 7 ====== -->
+<h2 id="debugging">7. Debugging Demo Commands</h2>
+
+<h3>Running Tests</h3>
+<pre><code># Run all tests (all browsers)
+npm test
+
+# Run one file, one browser
+npx playwright test tests/user-login.spec.ts --project=chromium
+
+# See the browser while it runs
+npx playwright test tests/user-login.spec.ts --project=chromium --headed
+
+# Step-through debugging (opens Inspector)
+npx playwright test tests/user-login.spec.ts --project=chromium --debug
+
+# Interactive UI mode (time-travel debugging)
+npx playwright test --ui</code></pre>
+
+<h3>Viewing Reports</h3>
+<pre><code># Open the HTML report (shows all test results)
+npm run report
+
+# Open a trace file (timeline replay of a failed test)
+npx playwright show-trace test-results/&lt;folder&gt;/trace.zip</code></pre>
+
+<h3>Live Demo Flow (2 Minutes)</h3>
+<div class="section">
+  <ol>
+    <li><strong>30 sec:</strong> Run <code>npx playwright test tests/user-registration.spec.ts --project=chromium --headed</code> &mdash; watch the browser register a new user</li>
+    <li><strong>30 sec:</strong> Run <code>npm run report</code> &mdash; show the HTML report with pass/fail results</li>
+    <li><strong>30 sec:</strong> Open a trace file &mdash; show the timeline, click through actions, show screenshots at each step</li>
+    <li><strong>30 sec:</strong> Show <code>created-accounts.json</code> &mdash; "Every test run saves the credentials it created"</li>
+  </ol>
+</div>
+
+<!-- ====== SECTION 8 ====== -->
+<h2 id="slides">8. Presentation Script (10 Slides, 5-7 Minutes)</h2>
+
+<div class="slide"><span class="slide-num">Slide 1</span><strong>Title Slide</strong>
+<p>"Enterprise E-Commerce Automation Framework &mdash; Built with Playwright + TypeScript"</p>
+<p><em>Script:</em> "Good morning. I'm Hariteja, and today I'll walk you through the test automation framework I built for an online retail platform using Playwright and TypeScript. I'll cover why I chose these tools, how the framework is designed, and show you a live demo."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 2</span><strong>The Problem</strong>
+<p><em>Script:</em> "The client runs an e-commerce site with critical customer journeys: registration, product search, checkout, and payment. Testing these flows manually across 3 browsers takes hours and is error-prone. They need automated tests that run reliably every time code changes, produce clear reports, and can be extended by new team members."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 3</span><strong>Why Playwright?</strong>
+<p><em>Script:</em> "I chose Playwright over Selenium for three main reasons. First, auto-waiting: Playwright automatically waits for elements to be ready before interacting. No more flaky explicit waits. Second, built-in features: network mocking, visual regression, and trace debugging are all included. Third, speed: Playwright talks directly to the browser engine, making tests significantly faster."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 4</span><strong>Architecture Overview</strong>
+<p>Show the folder structure diagram.</p>
+<p><em>Script:</em> "The framework follows the Page Object Model pattern. Pages folder has one class per page. Tests folder has the test scenarios. Test data is separated into JSON files. Fixtures handle setup like ad-blocking and dependency injection. This separation means when a UI element changes, I update one file, not twenty tests."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 5</span><strong>Page Object Model in Action</strong>
+<p>Show LoginPage code.</p>
+<p><em>Script:</em> "Here's how it works in practice. The LoginPage class wraps all the login form's elements and actions. My test just says loginPage.login(email, password). The test reads like a business requirement, not HTML implementation details. If the email field's selector changes tomorrow, I fix one file."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 6</span><strong>Test Coverage</strong>
+<p>Show the test cases table.</p>
+<p><em>Script:</em> "I built 10 test files covering all critical journeys: registration with unique credentials each run, login, logout, product browsing and cart management, full checkout with payment and invoice validation, contact form submission, plus accessibility scanning, visual regression, and network interception tests."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 7</span><strong>Advanced Features</strong>
+<p><em>Script:</em> "Beyond basic testing, the framework includes: accessibility testing with axe-core that scans for WCAG violations, visual regression that compares page screenshots against baselines, network interception that blocks ads for stability and can mock API responses, and cross-browser execution across Chrome, Firefox, and Safari."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 8</span><strong>Live Demo</strong>
+<p><em>Script:</em> "Let me show you this running. I'll register a new user &mdash; watch how the unique name is generated. Then I'll open the HTML report to show you the results. And finally, I'll open a trace file where you can see every action the test took, with screenshots at each step."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 9</span><strong>AI-Assisted Development</strong>
+<p><em>Script:</em> "I used AI tools &mdash; Claude Code and the Playwright MCP server &mdash; to accelerate development. AI helped generate initial test structures and locators. But every line was reviewed, tested, and understood by me. AI is a productivity tool: the design decisions, the architecture, the debugging &mdash; those are mine. Being transparent about AI usage is important in modern engineering."</p>
+</div>
+
+<div class="slide"><span class="slide-num">Slide 10</span><strong>Summary and Next Steps</strong>
+<p><em>Script:</em> "To summarize: this framework gives us reliable automated testing across all critical customer journeys, clear reporting for stakeholders, and a maintainable codebase that any team member can extend. Future improvements could include CI/CD pipeline integration, API-level testing, and mobile viewport testing. Thank you. I'm happy to answer questions."</p>
+</div>
+
+<!-- ====== SECTION 9 ====== -->
+<h2 id="qa">9. Interview Q&A (20 Questions)</h2>
+
+<div class="qa">
+  <details><summary><strong>1. Why did you choose Playwright over Selenium?</strong></summary>
+  <p>"Auto-waiting eliminates flaky explicit waits. Built-in network mocking, trace debugging, and visual regression mean fewer external tools. It's faster because it talks directly to the browser engine, not through an HTTP protocol."</p></details>
+
+  <details><summary><strong>2. What is the Page Object Model and why use it?</strong></summary>
+  <p>"Each page gets its own class that hides locators and exposes business actions. If a button's selector changes, I update one file, not every test that clicks it. Tests read like requirements: loginPage.login(email, password)."</p></details>
+
+  <details><summary><strong>3. How do you handle flaky tests?</strong></summary>
+  <p>"Three ways. First, Playwright's auto-wait handles timing issues. Second, I block ads at the network level because they overlay elements randomly. Third, I use retries in config (1 retry locally, 2 in CI), and traces are captured on retry to debug the root cause."</p></details>
+
+  <details><summary><strong>4. How do you handle waits in Playwright?</strong></summary>
+  <p>"I don't use hard sleeps. Playwright auto-waits for elements to be visible, enabled, and stable before acting. For assertions, expect() retries until the condition is met or timeout expires. The only explicit waits I use are waitFor() for modals or navigation."</p></details>
+
+  <details><summary><strong>5. What's the difference between fixtures and beforeEach?</strong></summary>
+  <p>"Fixtures are lazy &mdash; they only create what a test requests. A test that needs only contactUsPage doesn't pay the cost of constructing checkoutPage. They also support dependency injection, type safety, and automatic teardown."</p></details>
+
+  <details><summary><strong>6. How do you handle test data?</strong></summary>
+  <p>"Test data lives in JSON files under testdata/. A typed utility reads them. For unique data like emails, I generate timestamps at runtime. Credentials from registration tests are saved to a JSON file that login tests read."</p></details>
+
+  <details><summary><strong>7. How do you handle cross-browser testing?</strong></summary>
+  <p>"playwright.config.ts defines three browser projects: Chromium, Firefox, and WebKit. npm test runs all tests on all three. I can target one browser with --project=chromium. Visual tests only run on Chromium because pixel-level baselines differ across browsers."</p></details>
+
+  <details><summary><strong>8. What is network interception and when would you use it?</strong></summary>
+  <p>"page.route() intercepts HTTP requests. I use it to block ads for test stability, simulate slow networks, mock API responses for edge cases, and capture/validate response status codes."</p></details>
+
+  <details><summary><strong>9. How does your accessibility testing work?</strong></summary>
+  <p>"I use axe-core, the industry-standard engine. It scans the rendered page against WCAG 2.0 Level A and AA rules. I filter for critical and serious violations. Each failure includes the rule ID, description, and a URL explaining how to fix it."</p></details>
+
+  <details><summary><strong>10. How does visual regression testing work?</strong></summary>
+  <p>"First run creates baseline screenshots. Subsequent runs compare against those baselines. If more than 5% of pixels differ, the test fails. I update baselines with --update-snapshots when intentional UI changes happen."</p></details>
+
+  <details><summary><strong>11. How would you integrate this with CI/CD?</strong></summary>
+  <p>"The framework already outputs JSON reports for machine parsing. In GitHub Actions or Jenkins, I'd run npm test, publish the HTML report as an artifact, and fail the pipeline if any test fails. The config already has CI-specific settings for retries and workers."</p></details>
+
+  <details><summary><strong>12. How do you debug a failed test?</strong></summary>
+  <p>"Four levels. First: check the HTML report for the failure screenshot. Second: open the trace file &mdash; it shows a timeline of every action with DOM snapshots. Third: run with --headed to watch it live. Fourth: run with --debug for step-by-step execution with the Inspector."</p></details>
+
+  <details><summary><strong>13. Why TypeScript over JavaScript?</strong></summary>
+  <p>"Compile-time error detection catches mistakes before tests run. IDE autocomplete shows what methods a page object has. Interfaces like RegistrationData serve as living documentation. Renaming a method flags every broken caller immediately."</p></details>
+
+  <details><summary><strong>14. How do you make tests independent of each other?</strong></summary>
+  <p>"Each test gets a fresh browser context &mdash; no shared cookies or state. Registration tests generate unique emails with timestamps. Tests that need an existing account read from a saved credentials file rather than depending on test execution order."</p></details>
+
+  <details><summary><strong>15. What's your locator strategy?</strong></summary>
+  <p>"I prioritize data-qa attributes because they exist solely for testing and are stable. Second choice: semantic selectors like a[href='/login']. Last resort: text-based selectors. I avoid fragile XPath or deeply nested CSS selectors."</p></details>
+
+  <details><summary><strong>16. How would you scale this for a larger application?</strong></summary>
+  <p>"The structure already scales: add a page object for each new page, register it in fixtures, write tests. For a very large suite, I'd add test tagging (@smoke, @regression), parallel execution sharding, and possibly API-level setup to skip UI steps where possible."</p></details>
+
+  <details><summary><strong>17. How did you use AI in building this?</strong></summary>
+  <p>"I used Claude Code to help generate test structures, locators, and boilerplate. Every line was reviewed and tested by me. AI accelerated the writing; the architecture decisions, debugging, and quality assurance were mine. I'm transparent about this because responsible AI usage is a modern engineering practice."</p></details>
+
+  <details><summary><strong>18. Why did you block ads in the fixture?</strong></summary>
+  <p>"automationexercise.com loads Google Ads that overlay clickable elements and appear inconsistently. Blocking at the network level with page.route() is more reliable than trying to close popups, and it makes tests faster and deterministic."</p></details>
+
+  <details><summary><strong>19. What would you improve if you had more time?</strong></summary>
+  <p>"CI/CD pipeline integration with GitHub Actions, API-level testing for backend validation, mobile viewport testing, performance benchmarking, and possibly a custom reporter for Slack notifications."</p></details>
+
+  <details><summary><strong>20. What if you don't know the answer to a question?</strong></summary>
+  <p>Say: <em>"That's a great question. I haven't worked with that specifically yet, but based on what I know about [related concept], I'd approach it by [logical next step]. I'd want to research it further before implementing."</em> Honesty builds more trust than a wrong answer.</p></details>
+</div>
+
+<!-- ====== SECTION 10 ====== -->
+<h2 id="tips">10. Tips for Tonight</h2>
+
+<div class="tip">
+  <strong>1. Run the full suite and open the HTML report.</strong>
+  <pre><code>npx playwright test --project=chromium
+npm run report</code></pre>
+  Have the report open and ready to show during the demo.
+</div>
+
+<div class="tip">
+  <strong>2. Make a test fail on purpose.</strong>
+  Change an assertion (e.g., verify wrong text), run it, then open the trace:
+  <pre><code>npx playwright show-trace test-results/&lt;folder&gt;/trace.zip</code></pre>
+  Panels love seeing you debug confidently.
+</div>
+
+<div class="tip">
+  <strong>3. Memorize these two answers:</strong>
+  <ul>
+    <li>"Why this locator?" &rarr; "data-qa attributes are stable and exist only for testing."</li>
+    <li>"How do you handle waits?" &rarr; "Playwright auto-waits. I never use hard sleeps."</li>
+  </ul>
+</div>
+
+<div class="tip">
+  <strong>4. Be honest about AI usage.</strong>
+  "AI helped me write faster. I reviewed every line, ran every test, and made every design decision myself." That's exactly what they want to hear.
+</div>
+
+<div class="warn">
+  <strong>Weak spots to be ready for:</strong>
+  <ul>
+    <li>Your new tests (user-registration, user-login, etc.) use the same account via a JSON file. If asked about test isolation, explain the trade-off: convenience vs. full independence. In a production framework, you'd use API calls to create/delete accounts per test.</li>
+    <li>The Polo brand page shows "Blue Top" and "Fancy Green Top" which aren't actually Polo T-shirts. If asked, explain: "The test validates the cart flow, not the product filtering logic on the server side."</li>
+  </ul>
+</div>
+
+<p style="text-align:center; color: var(--muted); margin-top: 3rem; font-size: 0.9rem;">Good luck tomorrow, Hariteja. You built a solid framework. Own it.</p>

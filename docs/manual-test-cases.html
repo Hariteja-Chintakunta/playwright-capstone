@@ -1,0 +1,192 @@
+<title>Manual Test Cases</title>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; background: #fff; color: #1a1a1a; padding: 20px; }
+  h1 { font-size: 16pt; margin-bottom: 4px; }
+  .meta { color: #555; font-size: 10pt; margin-bottom: 20px; }
+  h2 { font-size: 13pt; background: #2563eb; color: #fff; padding: 8px 12px; margin: 30px 0 0; border-radius: 4px 4px 0 0; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th, td { border: 1px solid #bbb; padding: 6px 10px; text-align: left; vertical-align: top; font-size: 10.5pt; }
+  th { background: #e8f0fe; font-weight: 700; white-space: nowrap; }
+  .step-num { text-align: center; width: 40px; font-weight: 700; }
+  .info-table { width: auto; margin-bottom: 0; }
+  .info-table th { width: 140px; background: #f0f0f0; }
+  .info-table td { min-width: 300px; }
+  .pass { color: #16a34a; font-weight: 700; }
+  .fail { color: #dc2626; font-weight: 700; }
+  tr:nth-child(even) td { background: #fafafa; }
+  @media print { body { padding: 10px; } h2 { break-before: page; } }
+</style>
+
+<h1>Manual Test Cases - E-Commerce Automation Project</h1>
+<p class="meta">Project: Playwright Capstone | Application: automationexercise.com | Prepared by: Hariteja Chintakunta | Date: 2026-10-16</p>
+
+<!-- ============ TC-001 ============ -->
+<h2>TC-001: User Registration</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-001</td></tr>
+  <tr><th>Test Case Name</th><td>User Registration with Unique Credentials</td></tr>
+  <tr><th>Module</th><td>Authentication</td></tr>
+  <tr><th>Priority</th><td>High</td></tr>
+  <tr><th>Pre-conditions</th><td>Browser is open. User is not logged in. A unique name and email are prepared.</td></tr>
+  <tr><th>Test Data</th><td>Name: hariteja_[timestamp], Email: haritejac_[timestamp]@hotmail.com, Password: Rules@123, DOB: 19/05/2010</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Navigate to https://automationexercise.com/</td><td>Home page is displayed with the slider visible.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Click on "Signup / Login" link in the header.</td><td>Login page opens showing "New User Signup!" and "Login to your account" sections.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Under "New User Signup!", enter Name and Email address.</td><td>Name and Email fields accept input.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Click the "Signup" button.</td><td>Registration form page opens with "Enter Account Information" heading.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>Select Title as "Mr".</td><td>Mr radio button is selected.</td><td></td></tr>
+  <tr><td class="step-num">6</td><td>Enter Password as "Rules@123".</td><td>Password field accepts input.</td><td></td></tr>
+  <tr><td class="step-num">7</td><td>Select Date of Birth: Day=19, Month=May, Year=2010.</td><td>All three dropdowns show selected values.</td><td></td></tr>
+  <tr><td class="step-num">8</td><td>Fill in Address Information: First name, Last name, Company, Address, Address2, Country, State, City, Zipcode, Mobile number.</td><td>All fields accept input correctly.</td><td></td></tr>
+  <tr><td class="step-num">9</td><td>Click "Create Account" button.</td><td>"ACCOUNT CREATED!" message is displayed.</td><td></td></tr>
+  <tr><td class="step-num">10</td><td>Click "Continue" button.</td><td>Home page is displayed with "Logged in as [username]" in the header.</td><td></td></tr>
+  <tr><td class="step-num">11</td><td>Verify the created credentials are saved to reports/created-accounts.json.</td><td>JSON file contains the new account with name, email, password, and timestamp.</td><td></td></tr>
+</table>
+<!-- ============ TC-002 ============ -->
+<h2>TC-002: User Login</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-002</td></tr>
+  <tr><th>Test Case Name</th><td>Login with Latest Created User</td></tr>
+  <tr><th>Module</th><td>Authentication</td></tr>
+  <tr><th>Priority</th><td>High</td></tr>
+  <tr><th>Pre-conditions</th><td>A user account has been created and saved in created-accounts.json. User is not logged in.</td></tr>
+  <tr><th>Test Data</th><td>Read latest email and password from reports/created-accounts.json.</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Navigate to https://automationexercise.com/</td><td>Home page is displayed.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Click on "Signup / Login" link in the header.</td><td>Login page opens with "Login to your account" section visible.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Verify "Login to your account" and "New User Signup!" headers are visible.</td><td>Both section headers are displayed.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Enter the email address from the latest created account.</td><td>Email field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>Enter the password from the latest created account.</td><td>Password field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">6</td><td>Click the "Login" button.</td><td>User is logged in. "Logged in as [username]" is displayed in the header.</td><td></td></tr>
+</table>
+
+<!-- ============ TC-003 ============ -->
+<h2>TC-003: User Logout</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-003</td></tr>
+  <tr><th>Test Case Name</th><td>Logout the Logged-in User and Verify</td></tr>
+  <tr><th>Module</th><td>Authentication</td></tr>
+  <tr><th>Priority</th><td>High</td></tr>
+  <tr><th>Pre-conditions</th><td>A user account exists in created-accounts.json. User is not logged in.</td></tr>
+  <tr><th>Test Data</th><td>Read latest email and password from reports/created-accounts.json.</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Navigate to https://automationexercise.com/</td><td>Home page is displayed.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Click on "Signup / Login" link.</td><td>Login page opens.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Enter email and password of the latest account and click "Login".</td><td>"Logged in as [username]" is displayed in the header.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Click the "Logout" link in the header.</td><td>User is logged out. Login page is displayed.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>Verify the "Signup / Login" link is visible in the header again.</td><td>"Signup / Login" link is visible, confirming session is ended.</td><td></td></tr>
+</table>
+
+<!-- ============ TC-004 ============ -->
+<h2>TC-004: Search and Add Products to Cart</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-004</td></tr>
+  <tr><th>Test Case Name</th><td>Browse Polo T-Shirts and Add Three to Cart</td></tr>
+  <tr><th>Module</th><td>Product Search &amp; Cart</td></tr>
+  <tr><th>Priority</th><td>High</td></tr>
+  <tr><th>Pre-conditions</th><td>User is logged in. Cart is empty (cleared of any previous items).</td></tr>
+  <tr><th>Test Data</th><td>Category: Men &gt; T-Shirts, Brand: Polo, Items to add: First 3 products displayed.</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Log in using the latest created account.</td><td>"Logged in as [username]" is displayed.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Navigate to Cart and clear any existing items by clicking the X (delete) button on each item.</td><td>Cart is empty.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Go to the Home page. In the left sidebar, click on "Men" category to expand it.</td><td>Men subcategories (Tshirts, Jeans) are visible.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Click on "Tshirts" under Men category.</td><td>Page shows "Men - Tshirts Products" heading with T-shirt products listed.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>In the Brands section on the left sidebar, click on "Polo".</td><td>Page shows "Brand - Polo Products" heading. Product listing is filtered to Polo brand.</td><td></td></tr>
+  <tr><td class="step-num">6</td><td>Note the names of the first three products displayed.</td><td>At least 3 products are visible in the listing.</td><td></td></tr>
+  <tr><td class="step-num">7</td><td>Click "Add to cart" on the first product. Click "Continue Shopping" in the modal.</td><td>Modal shows "Added!" message. Modal closes after clicking Continue Shopping.</td><td></td></tr>
+  <tr><td class="step-num">8</td><td>Click "Add to cart" on the second product. Click "Continue Shopping" in the modal.</td><td>Modal shows "Added!" message. Modal closes.</td><td></td></tr>
+  <tr><td class="step-num">9</td><td>Click "Add to cart" on the third product. Click "View Cart" in the modal.</td><td>Cart page opens.</td><td></td></tr>
+  <tr><td class="step-num">10</td><td>Verify the cart contains exactly 3 items.</td><td>3 product rows are displayed in the cart table.</td><td></td></tr>
+  <tr><td class="step-num">11</td><td>Verify each product name matches the names noted in Step 6.</td><td>All 3 product names match.</td><td></td></tr>
+  <tr><td class="step-num">12</td><td>Verify the quantity for each product is 1.</td><td>Quantity column shows "1" for each product.</td><td></td></tr>
+  <tr><td class="step-num">13</td><td>Verify the price is displayed for each product.</td><td>Each product has a non-empty price value (e.g., Rs. 500).</td><td></td></tr>
+</table>
+
+<!-- ============ TC-005 ============ -->
+<h2>TC-005: Remove Added Product</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-005</td></tr>
+  <tr><th>Test Case Name</th><td>Add Three Products and Remove One from Cart</td></tr>
+  <tr><th>Module</th><td>Cart Management</td></tr>
+  <tr><th>Priority</th><td>Medium</td></tr>
+  <tr><th>Pre-conditions</th><td>User is logged in. Cart is empty.</td></tr>
+  <tr><th>Test Data</th><td>Category: Men &gt; T-Shirts, Brand: Polo, Items: First 3 products.</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Log in using the latest created account.</td><td>"Logged in as [username]" is displayed.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Clear the cart of any existing items.</td><td>Cart is empty.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Navigate to Men &gt; T-Shirts &gt; Polo brand.</td><td>Polo brand products are displayed.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Add the first 3 products to the cart (Continue Shopping after each, View Cart after the third).</td><td>Cart page opens showing 3 products.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>Verify the cart contains exactly 3 items.</td><td>3 product rows are displayed.</td><td></td></tr>
+  <tr><td class="step-num">6</td><td>Note the name of the first product in the cart.</td><td>First product name is noted.</td><td></td></tr>
+  <tr><td class="step-num">7</td><td>Click the X (delete) button on the first product row.</td><td>The first product is removed from the cart.</td><td></td></tr>
+  <tr><td class="step-num">8</td><td>Verify the cart now contains exactly 2 items.</td><td>2 product rows are displayed.</td><td></td></tr>
+  <tr><td class="step-num">9</td><td>Verify the removed product is no longer in the cart.</td><td>The deleted product name does not appear in the cart.</td><td></td></tr>
+  <tr><td class="step-num">10</td><td>Verify the remaining 2 products are still present with correct names.</td><td>The second and third product names are visible in the cart.</td><td></td></tr>
+</table>
+
+<!-- ============ TC-006 ============ -->
+<h2>TC-006: Place Order</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-006</td></tr>
+  <tr><th>Test Case Name</th><td>Complete Order Placement with Payment and Invoice Validation</td></tr>
+  <tr><th>Module</th><td>Checkout &amp; Payment</td></tr>
+  <tr><th>Priority</th><td>Critical</td></tr>
+  <tr><th>Pre-conditions</th><td>User is logged in. Cart is empty.</td></tr>
+  <tr><th>Test Data</th><td>Products: First 3 Polo T-Shirts. Payment: Name on Card=Hariteja, Card Number=4028743400541234, CVC=134, Expiry=10/12.</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Log in using the latest created account.</td><td>"Logged in as [username]" is displayed.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Clear the cart of any existing items.</td><td>Cart is empty.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Navigate to Men &gt; T-Shirts &gt; Polo brand.</td><td>Polo brand products are displayed.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Add the first 3 products to the cart and navigate to Cart page.</td><td>Cart shows 3 products with correct names and prices.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>Verify all 3 products are displayed in the shopping cart.</td><td>3 items visible with names, prices, quantities.</td><td></td></tr>
+  <tr><td class="step-num">6</td><td>Click "Proceed To Checkout" button.</td><td>Checkout page opens showing delivery address and order review.</td><td></td></tr>
+  <tr><td class="step-num">7</td><td>Click "Place Order" button.</td><td>Payment page opens with card detail fields.</td><td></td></tr>
+  <tr><td class="step-num">8</td><td>Enter Name on Card: "Hariteja".</td><td>Field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">9</td><td>Enter Card Number: "4028743400541234".</td><td>Field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">10</td><td>Enter CVC: "134".</td><td>Field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">11</td><td>Enter Expiration Month: "10" and Year: "12".</td><td>Fields accept the values.</td><td></td></tr>
+  <tr><td class="step-num">12</td><td>Click "Pay and Confirm Order" button.</td><td>"Congratulations! Your order has been confirmed!" message is displayed.</td><td></td></tr>
+  <tr><td class="step-num">13</td><td>Click "Download Invoice" link.</td><td>Invoice file is downloaded.</td><td></td></tr>
+  <tr><td class="step-num">14</td><td>Open the downloaded invoice and verify it contains: customer name, total purchase amount, and "Thank you" message.</td><td>Invoice text reads: "Hi [name], Your total purchase amount is [amount]. Thank you"</td><td></td></tr>
+  <tr><td class="step-num">15</td><td>Click "Continue" button.</td><td>Home page is displayed.</td><td></td></tr>
+  <tr><td class="step-num">16</td><td>Verify the home page slider is visible.</td><td>Home page slider/carousel is displayed.</td><td></td></tr>
+  <tr><td class="step-num">17</td><td>Verify "Logged in as [username]" is still displayed in the header.</td><td>User session remains active after order completion.</td><td></td></tr>
+</table>
+
+<!-- ============ TC-007 ============ -->
+<h2>TC-007: Contact Us Form Validation</h2>
+<table class="info-table">
+  <tr><th>Test Case ID</th><td>TC-007</td></tr>
+  <tr><th>Test Case Name</th><td>Submit Contact Us Form with File Upload</td></tr>
+  <tr><th>Module</th><td>Contact Us</td></tr>
+  <tr><th>Priority</th><td>Medium</td></tr>
+  <tr><th>Pre-conditions</th><td>User is logged in. File exists at docs/invoice.txt.</td></tr>
+  <tr><th>Test Data</th><td>Name: Hariteja, Email: [logged-in user's email], Subject: Invoice Issue, Message: "I am facing an issue with my previous order invoice. Kindly review and assist.", File: docs/invoice.txt</td></tr>
+</table>
+<table>
+  <tr><th class="step-num">#</th><th>Test Step</th><th>Expected Result</th><th>Status</th></tr>
+  <tr><td class="step-num">1</td><td>Log in using the latest created account.</td><td>"Logged in as [username]" is displayed.</td><td></td></tr>
+  <tr><td class="step-num">2</td><td>Click on "Contact us" link in the header menu.</td><td>Contact Us page opens with "Get In Touch" heading visible.</td><td></td></tr>
+  <tr><td class="step-num">3</td><td>Enter Name: "Hariteja".</td><td>Name field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">4</td><td>Enter Email: the logged-in user's email address.</td><td>Email field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">5</td><td>Enter Subject: "Invoice Issue".</td><td>Subject field accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">6</td><td>Enter Message: "I am facing an issue with my previous order invoice. Kindly review and assist."</td><td>Message text area accepts the value.</td><td></td></tr>
+  <tr><td class="step-num">7</td><td>Click "Choose File" and select the file docs/invoice.txt.</td><td>File name is displayed next to the upload button.</td><td></td></tr>
+  <tr><td class="step-num">8</td><td>Click "Submit" button.</td><td>A browser confirmation dialog appears asking to proceed.</td><td></td></tr>
+  <tr><td class="step-num">9</td><td>Click "OK" on the confirmation dialog.</td><td>Form is submitted.</td><td></td></tr>
+  <tr><td class="step-num">10</td><td>Verify the success message is displayed on the page.</td><td>Message reads: "Success! Your details have been submitted successfully."</td><td></td></tr>
+</table>

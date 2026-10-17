@@ -22,7 +22,7 @@ export class ContactUsPage extends BasePage {
     this.messageInput = page.locator('[data-qa="message"]');
     this.uploadFileInput = page.locator('input[name="upload_file"]');
     this.submitButton = page.locator('[data-qa="submit-button"]');
-    this.successMessage = page.locator('.alert-success');
+    this.successMessage = page.locator('#contact-page .alert-success');
     this.getInTouchHeader = page.locator('h2:has-text("Get In Touch")');
   }
 
@@ -53,9 +53,14 @@ export class ContactUsPage extends BasePage {
   async submit(): Promise<void> {
     this.page.once('dialog', (dialog) => dialog.accept());
     await this.submitButton.click();
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async verifySuccessMessage(): Promise<void> {
-    await expect(this.successMessage).toBeVisible();
+    await expect(this.successMessage).toBeVisible({ timeout: 10_000 });
+  }
+
+  getSuccessMessageLocator(): Locator {
+    return this.successMessage;
   }
 }
